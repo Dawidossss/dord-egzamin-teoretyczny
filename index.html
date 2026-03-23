@@ -3,144 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Egzamin DORD - Oficjalny System</title>
+    <title>Egzamin DORD - System</title>
     <style>
-        body { margin: 0; padding: 0; background: #f4f4f4; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        /* RESET I GLOBALNE USTAWIENIA */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        /* --- EKRAN LOGOWANIA --- */
-        #loginScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-container { width: 100%; max-width: 400px; padding: 20px; }
-        .login-header { text-align: center; margin-bottom: 30px; }
-        .login-logo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #f1c40f; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .login-title { font-size: 24px; font-weight: 800; color: #111; margin: 0; }
-        .login-sub { font-size: 12px; color: #888; margin-top: 5px; text-transform: uppercase; }
-        
-        .login-box { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
-        .login-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #eee; border-radius: 10px; text-transform: uppercase; text-align: center; letter-spacing: 2px; font-weight: 700; outline: none; transition: border-color 0.2s; }
-        .login-input:focus { border-color: #f1c40f; }
-        .login-btn { width: 100%; padding: 15px; font-size: 16px; cursor: pointer; background: #111; color: #fff; border: none; border-radius: 10px; font-weight: 700; margin-top: 15px; transition: background 0.2s; }
-        .login-btn:hover { background: #333; }
-        .login-error { color: #e74c3c; margin-top: 15px; font-weight: 600; font-size: 13px; min-height: 20px; }
+        :root {
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --primary: #f1c40f;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --danger: #e74c3c;
+            --success: #27ae60;
+        }
 
-        /* --- TREŚĆ EGZAMINU --- */
-        #examContent { display: none; max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
-        
-        .exam-header { background: linear-gradient(135deg, #111 0%, #333 100%); color: #fff; padding: 40px 20px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
-        .exam-header h1 { margin: 0; font-size: 22px; }
-        
-        .timer-bar { background: #f1c40f; color: #000; padding: 10px; text-align: center; font-weight: 800; font-size: 18px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: center; gap: 20px; }
-        .timer-bar span { background: rgba(255,255,255,0.3); padding: 2px 10px; border-radius: 4px; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        .question-card { background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 20px; margin: 0 15px 15px 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: border-color 0.3s; }
-        .question-card.error { border-color: #e74c3c; background: #fff5f5; }
-        .question-card.correct { border-color: #27ae60; background: #f0fff4; }
-        
-        .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .q-points { font-size: 10px; font-weight: 700; color: #fff; background: #ccc; padding: 3px 8px; border-radius: 10px; }
-        .q-points.p3 { background: #e74c3c; }
-        .q-points.p2 { background: #f1c40f; color: #000; }
-        .q-points.p1 { background: #27ae60; }
-        
-        .q-text { font-size: 15px; font-weight: 600; color: #111; margin-bottom: 15px; line-height: 1.5; }
-        .q-badge { font-size: 10px; color: #888; display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-        
-        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .answers.abcd { grid-template-columns: 1fr; }
-        
-        .ans-btn { padding: 12px; border: 2px solid #eee; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; font-weight: 600; color: #444; text-align: center; }
-        .ans-btn:hover { border-color: #f1c40f; background: #fffcf0; }
-        .ans-btn.selected { border-color: #f1c40f; background: #f1c40f; color: #000; }
-        .ans-btn.correct { border-color: #27ae60; background: #27ae60; color: #fff; }
-        .ans-btn.wrong { border-color: #e74c3c; background: #e74c3c; color: #fff; opacity: 0.7; }
-        .ans-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        /* --- EKRAN LOGOWANIA (POPRAWIONY) --- */
+        #loginScreen { 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px; 
+        }
 
-        .submit-area { padding: 20px; text-align: center; }
-        .submit-btn { padding: 15px 40px; background: #27ae60; color: #fff; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); transition: transform 0.1s; }
-        .submit-btn:hover { transform: scale(1.02); }
-        .submit-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+        .login-card { 
+            background: var(--card-bg); 
+            width: 100%; 
+            max-width: 400px; /* Stała szerokość karty */
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; /* Wyśrodkowanie wszystkiego wewnątrz */
+            border: 1px solid #333;
+        }
+
+        .login-logo { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            border: 3px solid var(--primary); 
+            margin-bottom: 20px; 
+            object-fit: cover;
+        }
+
+        .login-title { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .login-sub { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 35px; }
+
+        /* Formularz */
+        .login-form { width: 100%; display: flex; flex-direction: column; gap: 15px; }
+        
+        .login-input { 
+            width: 100%; 
+            padding: 15px; 
+            font-size: 18px; 
+            background: #2a2a2a; 
+            border: 2px solid #333; 
+            border-radius: 8px; 
+            color: #fff; 
+            text-align: center; 
+            font-weight: 600; 
+            letter-spacing: 2px; 
+            outline: none; 
+            transition: border-color 0.2s;
+        }
+        .login-input:focus { border-color: var(--primary); }
+
+        .login-btn { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--primary); 
+            color: #000; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        .login-btn:hover { opacity: 0.9; }
+        .login-btn:active { transform: scale(0.98); }
+
+        .login-error { 
+            color: var(--danger); 
+            font-size: 13px; 
+            text-align: center; 
+            min-height: 20px; 
+            margin-top: 10px;
+            display: none;
+        }
+        .login-spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.1); border-top-color: #000; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+
+        /* --- EKRAN EGZAMINU --- */
+        #examScreen { display: none; width: 100%; height: 100%; flex-direction: column; }
+        
+        .exam-header { padding: 15px; background: var(--card-bg); border-bottom: 1px solid #333; display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); }
+        .exam-header span { color: var(--primary); font-weight: 700; }
+
+        .timer-wrap { padding: 10px 20px; background: #111; text-align: center; }
+        .timer-progress-bg { height: 4px; background: #333; border-radius: 2px; width: 100%; margin-bottom: 10px; }
+        .timer-progress-fg { height: 100%; background: var(--primary); width: 100%; transition: width 0.1s linear; border-radius: 2px; }
+        .timer-time { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .timer-time.warn { color: var(--danger); animation: pulse 0.5s infinite; }
+
+        .question-container { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        
+        .q-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; }
+        .q-points { font-weight: 700; }
+        .q-points.p3 { color: var(--danger); }
+        .q-points.p2 { color: var(--primary); }
+        .q-points.p1 { color: var(--success); }
+
+        .q-box { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px; text-align: center; }
+        .q-text { font-size: 20px; line-height: 1.5; font-weight: 500; }
+
+        .answers { display: grid; gap: 15px; }
+        .answers.tf { grid-template-columns: 1fr 1fr; }
+        .answers.abc { grid-template-columns: 1fr; }
+
+        .ans-btn { 
+            padding: 20px; 
+            background: #2a2a2a; 
+            border: 2px solid #333; 
+            border-radius: 8px; 
+            color: #ccc; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.15s; 
+            user-select: none;
+        }
+        .ans-btn:hover { background: #333; border-color: #444; color: #fff; }
+        .ans-btn.selected { border-color: var(--primary); background: rgba(241, 196, 15, 0.1); color: var(--primary); }
+        .ans-btn.correct { border-color: var(--success); background: rgba(39, 174, 96, 0.2); color: var(--success); }
+        .ans-btn.wrong { border-color: var(--danger); background: rgba(231, 76, 60, 0.2); color: var(--danger); }
+        .ans-btn.locked { pointer-events: none; opacity: 0.7; }
+
+        /* Stopka z kropkami */
+        .progress-footer { background: var(--card-bg); padding: 10px; border-top: 1px solid #333; display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #333; transition: background 0.2s; }
+        .dot.cur { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+        .dot.ok { background: var(--success); }
+        .dot.fail { background: var(--danger); }
 
         /* Wyniki */
-        #resultScreen { display: none; text-align: center; padding: 40px 20px; }
-        .result-circle { width: 150px; height: 150px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px auto; font-weight: 800; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .result-circle.pass { background: #27ae60; color: #fff; }
-        .result-circle.fail { background: #e74c3c; color: #fff; }
-        .r-score { font-size: 32px; }
-        .r-label { font-size: 12px; text-transform: uppercase; }
+        #resultScreen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; background: var(--bg-dark); }
+        .result-box { background: var(--card-bg); padding: 40px; border-radius: 16px; text-align: center; width: 90%; max-width: 400px; border: 1px solid #333; }
+        .r-score { font-size: 48px; font-weight: 800; margin: 10px 0; }
+        .r-score.pass { color: var(--success); }
+        .r-score.fail { color: var(--danger); }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         @media (max-width: 600px) {
-            .answers { grid-template-columns: 1fr; }
+            .answers.tf { grid-template-columns: 1fr; }
+            .q-text { font-size: 18px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- EKRAN LOGOWANIA -->
+    <!-- LOGOWANIE -->
     <div id="loginScreen">
-        <div class="login-container">
-            <div class="login-header">
-                <img src="https://z-cdn-media.chatglm.cn/files/e765f68e-656e-42c9-a93f-c50b8530c618.png?auth_key=1874049393-a1d73f3391ef423084224503a91822aa-0-807a3d0214e239d7f33ff6e69e8664f3" class="login-logo">
-                <h1 class="login-title">DORD System</h1>
-                <div class="login-sub">Weryfikacja dostępu</div>
-            </div>
-            <div class="login-box">
-                <h2 style="margin-top:0; font-size:16px; color:#333;">Wprowadź klucz dostępu</h2>
-                <input type="text" id="keyInput" class="login-input" placeholder="XXXX-XXXX" maxlength="9">
-                <button onclick="validateKey()" class="login-btn">Rozpocznij egzamin</button>
-                <div id="errorMsg" class="login-error"></div>
+        <div class="login-card">
+            <img src="https://z-cdn-media.chatglm.cn/files/e765f68e-656e-42c9-a93f-c50b8530c618.png?auth_key=1874049393-a1d73f3391ef423084224503a91822aa-0-807a3d0214e239d7f33ff6e69e8664f3" class="login-logo">
+            <h1 class="login-title">DORD SYSTEM</h1>
+            <div class="login-sub">Weryfikacja Tożsamości</div>
+            
+            <div class="login-form">
+                <input type="text" id="keyInput" class="login-input" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
+                <button id="loginBtn" class="login-btn" onclick="validateKey()">Rozpocznij</button>
+                <div id="loginSpinner" class="login-spinner"></div>
+                <div id="loginError" class="login-error"></div>
             </div>
         </div>
     </div>
 
-    <!-- TREŚĆ EGZAMINU -->
-    <div id="examContent">
+    <!-- EGZAMIN -->
+    <div id="examScreen">
         <div class="exam-header">
-            <h1>Egzamin Teoretyczny</h1>
-            <p style="margin:5px 0 0 0; font-size:12px; color:#aaa;">Kategoria B</p>
+            <div>Pytanie: <span id="curQ">1</span>/<span id="totalQ">32</span></div>
+            <div id="qCategory">Kategoria</div>
+        </div>
+        
+        <div class="timer-wrap">
+            <div class="timer-progress-bg"><div id="timerBar" class="timer-progress-fg"></div></div>
+            <div id="timerVal" class="timer-time">20</div>
         </div>
 
-        <div class="timer-bar">
-            <span id="timerDisplay">20:00</span>
-            <span id="qCounter">0/32</span>
-        </div>
-
-        <div id="questionsContainer" style="padding-top:10px;"><div style="text-align:center; padding:20px; color:#888;">Ładowanie pytań...</div></div>
-
-        <div class="submit-area">
-            <button id="submitBtn" class="submit-btn" onclick="finishExam()">Zakończ egzamin</button>
-        </div>
-
-        <div id="resultScreen">
-            <div id="resultCircle" class="result-circle pass">
-                <div class="r-score">68/74</div>
-                <div class="r-label">Punkty</div>
+        <div class="question-container">
+            <div class="q-meta">
+                <span id="qTypeLabel">TAK/NIE</span>
+                <span id="qPointLabel" class="q-points p3">3 pkt</span>
             </div>
-            <h2 id="resultTitle" style="color:#27ae60">WYNIK POZYTYWNY</h2>
-            <p id="resultDesc" style="color:#555; margin-bottom:20px;">Gratulacje! Przystąp do części praktycznej.</p>
+            <div class="q-box">
+                <div id="qText" class="q-text">Treść pytania...</div>
+            </div>
+            <div id="ansBox" class="answers tf">
+                <!-- Przyciski -->
+            </div>
+        </div>
+
+        <div id="progFooter" class="progress-footer"></div>
+    </div>
+
+    <!-- WYNIKI -->
+    <div id="resultScreen">
+        <div class="result-box">
+            <h2 style="color:#888; font-size:14px; text-transform:uppercase;">Wynik Egzaminu</h2>
+            <div id="resScore" class="r-score pass">0/74</div>
+            <h2 id="resTitle" style="margin:10px 0;">ZALICZONY</h2>
+            <p id="resDesc" style="color:#888; font-size:13px;">Opis wyniku.</p>
         </div>
     </div>
 
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // KONFIGURACJA FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyC-Qxs9Zd0x1_1tpsiAQJE9QYkdPIARPXU",
-            authDomain: "dord---ewidencja-kursow.firebaseapp.com",
-            databaseURL: "https://dord---ewidencja-kursow-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "dord---ewidencja-kursow",
-            storageBucket: "dord---ewidencja-kursow.appspot.com",
-            messagingSenderId: "652495067977",
-            appId: "1:652495067977:web:61868205fa85f02d905898"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        // --- BAZA PYTAŃ (WPISANA ZGODNIE Z INSTRUKCJĄ) ---
+        // --- BAZA PYTAŃ (PEŁNA) ---
         const questionsData = [
-            // === PYTANIA TAK / NIE ===
-            // 3 pkt
+            // TAK/NIE 3pkt
             { text: "Czy masz obowiązek ustąpić pierwszeństwa pojazdowi uprzywilejowanemu na sygnale?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
             { text: "Czy wolno wyprzedzać na skrzyżowaniu równorzędnym?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
             { text: "Czy kierowca odpowiada za bezpieczeństwo pasażerów?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
@@ -161,8 +259,7 @@
             { text: "Czy wolno wjechać na skrzyżowanie, jeśli nie ma miejsca do jego opuszczenia?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
             { text: "Czy na autostradzie można zawracać?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
             { text: "Czy trzeba włączyć światła mijania w dzień?", answer: "TAK", points: 3, type: "tf", category: "Technika" },
-
-            // 2 pkt
+            // TAK/NIE 2pkt
             { text: "Czy wolno wyprzedzać pojazd wolnobieżny?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
             { text: "Czy można parkować na chodniku, jeśli znak tego nie zabrania?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
             { text: "Czy można używać klaksonu w celu ostrzeżenia o niebezpieczeństwie?", answer: "TAK", points: 2, type: "tf", category: "Bezpieczeństwo" },
@@ -183,8 +280,7 @@
             { text: "Czy dopuszczalne jest cofanie na drodze jednokierunkowej?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
             { text: "Czy można używać klaksonu w obszarze zabudowanym bez powodu?", answer: "NIE", points: 2, type: "tf", category: "Przepisy" },
             { text: "Czy znak ograniczenia prędkości obowiązuje do najbliższego skrzyżowania?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
-
-            // 1 pkt
+            // TAK/NIE 1pkt
             { text: "Czy można przewozić psa bez zabezpieczenia?", answer: "NIE", points: 1, type: "tf", category: "Bezpieczeństwo" },
             { text: "Czy dopuszczalne jest krótkie zatrzymanie na drodze dla rowerów?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
             { text: "Czy można jechać bez włączonych świateł w nocy?", answer: "NIE", points: 1, type: "tf", category: "Technika" },
@@ -196,8 +292,7 @@
             { text: "Czy światła przeciwmgielne można używać przy dobrej widoczności?", answer: "NIE", points: 1, type: "tf", category: "Technika" },
             { text: "Czy można parkować na zakręcie?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
 
-            // === PYTANIA A / B / C ===
-            // 3 pkt
+            // ABC 3pkt
             { text: "Zbliżasz się do skrzyżowania równorzędnego. Co robisz?", A: "Przyspieszasz", B: "Ustępujesz pojazdowi z prawej", C: "Jedziesz pierwszy", answer: "B", points: 3, type: "abc", category: "Przepisy" },
             { text: "Chcesz skręcić w lewo na skrzyżowaniu. Komu ustępujesz?", A: "Nikomu", B: "Pojazdom z przeciwka jadącym prosto lub w prawo", C: "Tylko pieszym", answer: "B", points: 3, type: "abc", category: "Przepisy" },
             { text: "Widzisz żółte światło. Co robisz?", A: "Przyspieszasz", B: "Zatrzymujesz się, jeśli możesz bezpiecznie", C: "Ignorujesz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
@@ -239,8 +334,7 @@
             { text: "Droga hamowania rośnie wraz z:", A: "Masa samochodu", B: "Długością samochodu", C: "Prędkością", answer: "C", points: 3, type: "abc", category: "Technika" },
             { text: "Mokra nawierzchnia powoduje:", A: "Lepszą przyczepność", B: "Dłuższą drogę hamowania", C: "Brak zmian", answer: "B", points: 3, type: "abc", category: "Technika" },
             { text: "Brak tętna:", A: "Czekasz", B: "RKO", C: "Woda", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
-
-            // 2 pkt
+            // ABC 2pkt
             { text: "Jak zmniejszyć zużycie paliwa?", A: "Gwałtowna jazda", B: "Płynna jazda", C: "Jazda na wysokich obrotach", answer: "B", points: 2, type: "abc", category: "Technika" },
             { text: "Kiedy używasz świateł drogowych?", A: "W mieście zawsze", B: "Poza obszarem zabudowanym, gdy nie oślepiasz", C: "Nigdy", answer: "B", points: 2, type: "abc", category: "Technika" },
             { text: "Jazda na suwak:", A: "Kto pierwszy", B: "Naprzemiennie", C: "Lewy ma pierwszeństwo", answer: "B", points: 2, type: "abc", category: "Przepisy" },
@@ -259,359 +353,305 @@
             { text: "Kiedy należy sprawdzić poziom oleju?", A: "Na ciepłym silniku", B: "Na zimnym", C: "Podczas jazdy", answer: "B", points: 2, type: "abc", category: "Technika" }
         ];
 
-        // Zmienne globalne
-        let examQuestions = [];
-        let userAnswers = {};
-        let timerInterval;
-        let timeLeft = 1200; // 20 min
-        const PASSING_SCORE = 68;
-        const TARGET_SCORE = 74;
+        // --- KONFIGURACJA ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-Qxs9Zd0x1_1tpsiAQJE9QYkdPIARPXU",
+            authDomain: "dord---ewidencja-kursow.firebaseapp.com",
+            databaseURL: "https://dord---ewidencja-kursow-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "dord---ewidencja-kursow",
+            storageBucket: "dord---ewidencja-kursow.appspot.com",
+            messagingSenderId: "652495067977",
+            appId: "1:652495067977:web:61868205fa85f02d905898"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // --- 1. LOGOWANIE KLUCZA ---
+        let examQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let maxScore = 0;
+        let answers = [];
+        let timer;
+        let timeLeft = 0;
+        const PASS_SCORE = 68;
+        const TOTAL_TARGET = 74;
+
+        // --- LOGOWANIE ---
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginError = document.getElementById('loginError');
+        
+        // Obsługa Entera
+        document.getElementById('keyInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') validateKey();
+        });
+
         function validateKey() {
             const key = document.getElementById('keyInput').value.trim().toUpperCase();
-            const err = document.getElementById('errorMsg');
-            if (!key || key.length !== 9) return err.innerText = "Wpisz poprawny klucz (XXXX-XXXX).";
+            if (!key || key.length !== 9) return showError('Wprowadź poprawny klucz (XXXX-XXXX)');
             
-            err.innerText = "Sprawdzanie...";
-            err.style.color = "#555";
+            loginBtn.style.display = 'none';
+            loginSpinner.style.display = 'block';
+            loginError.style.display = 'none';
 
-            db.ref('examKeys/' + key).transaction((data) => {
-                if (data === null) return null; 
-                if (data.status === 'active') return { status: 'used', usedAt: Date.now() };
-                return; 
-            }, (error, committed, snap) => {
-                if (error) { err.innerText = "Błąd sieci."; err.style.color = "red"; }
-                else if (!committed) { err.innerText = "Klucz nieprawidłowy lub zużyty!"; err.style.color = "red"; }
-                else { unlockExam(); }
+            db.ref('examKeys/' + key).transaction(data => {
+                if(data === null) return null;
+                if(data.status === 'active') return { status: 'used', usedAt: Date.now() };
+                return; // Already used or other
+            }, (err, committed, snap) => {
+                if(err) {
+                    showError('Błąd połączenia.');
+                    resetLogin();
+                } else if(!committed) {
+                    showError('Klucz nieprawidłowy lub wykorzystany.');
+                    resetLogin();
+                } else {
+                    startExam();
+                }
             });
         }
 
-        function unlockExam() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('examContent').style.display = 'block';
-            initExam();
-            startTimer();
+        function showError(msg) {
+            loginError.innerText = msg;
+            loginError.style.display = 'block';
+        }
+        function resetLogin() {
+            loginBtn.style.display = 'block';
+            loginSpinner.style.display = 'none';
         }
 
-        // --- 2. LOGIKA DOBORU PYTAŃ (74 PUNKTY) ---
-        function initExam() {
-            // Podział na pule
+        // --- EGZAMIN LOGIC ---
+        function startExam() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('examScreen').style.display = 'flex';
+
+            // Dobór pytań (20 TF, 12 ABC = 32 pytania, suma 74pkt)
             const poolTF = questionsData.filter(q => q.type === 'tf');
             const poolABC = questionsData.filter(q => q.type === 'abc');
 
-            // KROK 1: Wybierz 12 pytań ABC (priorytet 3 pkt, potem 2 pkt)
             let selectedABC = [];
             let abcScore = 0;
+            // ABC: Staraj się dobrać tak, żeby suma pasowała. 
+            // Większość ABC to 3 pkt. 12 pytań * 3 = 36 pkt.
+            // Potrzebujemy 38 pkt z TF.
+            // TF: 20 pytań. Średnia 1.9 pkt. Czyli głównie 2 pkt i trochę 3 pkt.
             
-            // Losuj 3-punktowe
-            let abc3 = shuffleArray(poolTF.filter(q => q.points === 3)); // Błąd celowy: szukanie w TF, poprawka: poolABC
-            abc3 = shuffleArray(poolABC.filter(q => q.points === 3)); 
+            // Losowanie ABC
+            let abc3 = shuffle(poolABC.filter(q => q.points === 3));
+            let abc2 = shuffle(poolABC.filter(q => q.points === 2));
             
-            // Losuj 2-punktowe
-            let abc2 = shuffleArray(poolABC.filter(q => q.points === 2));
-
-            // Dobierz 12 pytań
-            // Większość powinna być za 3 pkt, ale mogą trafić się 2 pkt.
-            // Maksymalnie możemy wziąć 12 pytań.
-            for(let i=0; i<abc3.length && selectedABC.length < 12; i++) {
-                selectedABC.push(abc3[i]);
+            // Weźmy maksymalnie 3-punktowe
+            while(selectedABC.length < 12 && abc3.length > 0) {
+                selectedABC.push(abc3.pop());
                 abcScore += 3;
             }
-            // Uzupełnij 2 pkt, jeśli brakuje
-            for(let i=0; i<abc2.length && selectedABC.length < 12; i++) {
-                selectedABC.push(abc2[i]);
+            // Uzupełnij 2-punktowymi jak brakuje
+            while(selectedABC.length < 12 && abc2.length > 0) {
+                selectedABC.push(abc2.pop());
                 abcScore += 2;
             }
 
-            // KROK 2: Oblicz ile punktów brakuje do 74
-            let requiredTFScore = TARGET_SCORE - abcScore;
-            
-            // KROK 3: Dobierz 20 pytań TAK/NIE tak, aby suma punktów = requiredTFScore
-            // Mamy 20 pytań do dyspozycji.
-            // Średnia punktów = requiredTFScore / 20.
-            // Przykład: Jeśli ABC dało 34 pkt (np. 10x3 + 2x2), to TAK/NIE musi dać 40 pkt.
-            // 40 pkt w 20 pytaniach = 2 pkt średnia. To oznacza, że musimy wybrać mieszankę 2 i 3 pkt.
-            
+            // Oblicz ile brakuje z TF
+            let neededTF = TOTAL_TARGET - abcScore;
             let selectedTF = [];
             let tfScore = 0;
-            
-            // Sortujemy TF losowo, ale dzielimy na kategorie punktów
-            let tf3 = shuffleArray(poolTF.filter(q => q.points === 3));
-            let tf2 = shuffleArray(poolTF.filter(q => q.points === 2));
-            let tf1 = shuffleArray(poolTF.filter(q => q.points === 1));
 
-            // Prosty algorytm: bierzemy tyle 3-punktowych, ile trzeba, potem 2, potem 1.
-            // Ale musimy dopasować idealnie wynik.
-            // Najbezpieczniej: bierzemy wszystkie 3pkt, potem 2pkt, potem 1pkt, aż uzbieramy punkty.
-            // ALE musimy mieć dokładnie 20 pytań.
-            
-            // Lepszy algorytm:
-            // 1. Oblicz ile pytań 3-punktowych potrzebujemy (x), ile 2-punktowych (y), ile 1-punktowych (z).
-            // x + y + z = 20
-            // 3x + 2y + 1z = requiredTFScore
-            
-            // Rozwiązujemy układ równań (przybliżone, bo liczby muszą być całkowite):
-            // Załóżmy, że z = 0 (unikamy pytań 1 pkt, jeśli nie trzeba).
-            // y = requiredTFScore - (3 * 20). (To może wyjść ujemne).
-            // Próbujemy inaczej:
-            // Sprawdźmy ile punktów "nadwyżki" mamy nad minimum (minimum 20 pytań po 1 pkt = 20 pkt).
-            // nadwyzka = requiredTFScore - 20. (Każde pytanie 2 pkt dodaje 1 nadwyżki, każde 3 pkt dodaje 2 nadwyżki).
-            // 1*y + 2*x = nadwyzka.
-            // x + y <= 20.
-            
-            let neededPoints = requiredTFScore;
-            let countTF = 0;
-            
-            // Czyścimy tablice
-            selectedTF = [];
-            
-            // Budujemy pulę kandydatów
-            // Strategia: Losujemy pytania i sprawdzamy czy suma się zgadza.
-            // Jeśli zostało mało miejsc (np. 5), a brakuje dużo punktów, musimy brać 3 pkt.
-            // Jeśli zostało dużo miejsc (np. 15), a brakuje mało punktów, bierzemy 1 i 2 pkt.
-            
-            // Dla uproszczenia i pewności działania użyjemy strategii priorytetowej:
-            // Bierzemy pytania w kolejności: 3pkt -> 2pkt -> 1pkt, dopóki nie uzbieramy punktów.
-            // Ale to może dać za mało pytań (np. 15 pytań po 3 pkt = 45 pkt, a potrzebujemy 20 pytań).
-            
-            // KOREKTA: Zastosujemy bezpieczny zestaw "na sztywno" oparty na logice:
-            // Aby uzyskać 74 pkt przy 32 pytaniach, średnia to ~2.3 pkt.
-            // Zróbmy tak:
-            // 12 pytań ABC: zazwyczaj 34-36 pkt (większość 3 pkt).
-            // Zostaje ~38-40 pkt na 20 pytań TF. To oznacza mix 3pkt i 2pkt.
-            
-            // Algorytm zachłanny z limitem 20 pytań:
-            // 1. Dodawaj pytania 3 pkt dopóki (pozostałe miejsca * 1 pkt) < brakujące punkty.
-            // (zabezpieczenie, żeby nie zabrać za dużo punktów i nie zostać zmuszonym do wzięcia 1 pkt gdy zostało mało miejsc)
-            
-            let spotsLeft = 20;
-            
-            // Pula tymczasowa
-            let tempTF = [];
-            
-            // Mieszamy pule
-            tf3 = shuffleArray(tf3);
-            tf2 = shuffleArray(tf2);
-            tf1 = shuffleArray(tf1);
+            let tf3 = shuffle(poolTF.filter(q => q.points === 3));
+            let tf2 = shuffle(poolTF.filter(q => q.points === 2));
+            let tf1 = shuffle(poolTF.filter(q => q.points === 1));
 
-            // Najpierw bierzemy 3 pkt
+            // Algorytm: bierzemy 3 pkt dopóki bezpiecznie, potem 2, potem 1.
+            // "Bezpiecznie" = musi starczyć miejsc na uzupełnienie jedynkami.
+            
             for(let i=0; i<tf3.length; i++) {
-                if(tempTF.length >= 20) break;
-                // Sprawdźmy czy dodanie tego pytania nie uniemożliwi osiągnięcia celu (np. za dużo punktów za mało miejsc)
-                // Obecny wynik + 3 + (pozostałe miejsca * 1) <= requiredTFScore ? Nie, to źle.
-                // Chcemy osiągnąć requiredTFScore.
-                // Jeśli dodamy 3, a zostanie 0 miejsc, to musimy mieć requiredTFScore - currentScore == 3.
+                if(selectedTF.length >= 20) break;
+                let current = selectedTF.reduce((s,q) => s+q.points, 0);
+                let spots = 20 - selectedTF.length;
+                // Jeśli dodam 3, czy starczy mi miejsc (spots-1) * 1 pkt żeby dobić do needed?
+                // Nie, chodzi o to by nie przekroczyć neededTF za bardzo, ale musimy mieć 20 pytań.
+                // Łatwiej: bierzemy tyle 3 i 2, żeby uzbierać ok 38-40 pkt.
                 
-                // Uproszczenie: Weźmy najpierw wszystkie "trudne" (3pkt) i "średnie" (2pkt) w odpowiedniej proporcji.
-                // Przypuśćmy, że chcemy jak najwięcej 3 pkt.
-                // Weźmy x pytań 3 pkt.
-                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
-                if (currentSum + 3 + (spotsLeft - 1) <= requiredTFScore) {
-                     // Jeśli dodając 3 pkt, nadal możemy "zmieścić się" w limicie punktów biorąc same jedynki (hipotetycznie)
-                     // To bierzemy.
-                     tempTF.push(tf3[i]);
-                     spotsLeft--;
+                // Uproszczony dobór:
+                if(tfScore + 3 <= neededTF + 5) { // margines błędu
+                     selectedTF.push(tf3[i]);
+                     tfScore += 3;
                 }
             }
             
-            // Uzupełniamy 2 pkt
             for(let i=0; i<tf2.length; i++) {
-                if(tempTF.length >= 20) break;
-                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
-                if (currentSum + 2 + (spotsLeft - 1) <= requiredTFScore) {
-                     tempTF.push(tf2[i]);
-                     spotsLeft--;
+                if(selectedTF.length >= 20) break;
+                if(tfScore + 2 <= neededTF + 5) {
+                     selectedTF.push(tf2[i]);
+                     tfScore += 2;
                 }
             }
-            
-            // Uzupełniamy 1 pkt (lub jeśli brakuje punktów, to dodajemy co się da, choć to edge case)
-            for(let i=0; i<tf1.length; i++) {
-                if(tempTF.length >= 20) break;
-                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
-                 // Tutaj po prostu dokładamy do pełna
-                 tempTF.push(tf1[i]);
-                 spotsLeft--;
+
+            // Uzupełnij do 20 (jeśli brakuje miejsc lub punktów)
+            while(selectedTF.length < 20) {
+                // Jeśli za dużo punktów, bierzemy 1. Jeśli za mało, bierzemy co się da.
+                // Ale musimy po prostu dobić do 20 pytań.
+                // Bierzemy z puli tf1, tf2, tf3 (to co zostało)
+                let q = tf1.pop() || tf2.pop() || tf3.pop();
+                if(q) {
+                    selectedTF.push(q);
+                    tfScore += q.points;
+                } else break;
             }
 
-            // Jeśli algorytm nie zebrał 20 pytań lub punktów (rzadki przypadek błędu założenia), dozbieramy z 2 pkt i 3 pkt bez limitu dolnego
-            let allTF = shuffleArray(poolTF);
-            while(tempTF.length < 20) {
-                // Szukaj pytania, którego nie ma na liście
-                const q = allTF.find(x => !tempTF.includes(x));
-                if(q) tempTF.push(q);
-                else break; // koniec bazy
-            }
+            examQuestions = shuffle([...selectedTF, ...selectedABC]);
+            maxScore = examQuestions.reduce((s, q) => s + q.points, 0);
 
-            selectedTF = tempTF;
-            // Przeliczmy ostateczny wynik (może się minimalnie różnić, ale system DORD dopuszcza małe odchylenia, tu celujemy w 74)
-            let finalTFScore = selectedTF.reduce((s, q) => s + q.points, 0);
-            let finalABCScore = selectedABC.reduce((s, q) => s + q.points, 0);
-            
-            // Logowanie dla pewności (konsola)
-            console.log(`Wybrano ${selectedTF.length} TF (${finalTFScore} pkt) i ${selectedABC.length} ABC (${finalABCScore} pkt). Suma: ${finalTFScore + finalABCScore}`);
-
-            // Połączenie i tasowanie (opcjonalnie, tu wyświetlamy sekcjami)
-            examQuestions = [...selectedTF, ...selectedABC];
-            // Tasujemy całość, aby nie było widać podziału, albo zostawiamy TF najpierw.
-            // Zostawiamy TF najpierw dla jasności struktury (tak jak w prawdziwym egzaminie często bywa).
-            
-            renderExam();
+            // Init UI
+            document.getElementById('totalQ').innerText = examQuestions.length;
+            generateDots();
+            loadQuestion();
         }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+        function generateDots() {
+            const footer = document.getElementById('progFooter');
+            footer.innerHTML = '';
+            for(let i=0; i<examQuestions.length; i++) {
+                footer.innerHTML += `<div class="dot" id="dot${i}"></div>`;
             }
-            return array;
         }
 
-        // --- 3. WYŚWIETLANIE EGZAMINU ---
-        function renderExam() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-            userAnswers = {};
-
-            examQuestions.forEach((q, index) => {
-                userAnswers[index] = null;
-                let html = '';
-
-                let pointsClass = 'p3';
-                if(q.points === 2) pointsClass = 'p2';
-                if(q.points === 1) pointsClass = 'p1';
-
-                let answersHtml = '';
-                
-                if (q.type === 'tf') {
-                    answersHtml = `
-                        <div class="ans-btn" onclick="selectAnswer(${index}, 'TAK', this)">TAK</div>
-                        <div class="ans-btn" onclick="selectAnswer(${index}, 'NIE', this)">NIE</div>
-                    `;
-                } else {
-                    answersHtml = `
-                        <div class="answers abcd">
-                            <div class="ans-btn" onclick="selectAnswer(${index}, 'A', this)">A. ${q.A || ''}</div>
-                            <div class="ans-btn" onclick="selectAnswer(${index}, 'B', this)">B. ${q.B || ''}</div>
-                            <div class="ans-btn" onclick="selectAnswer(${index}, 'C', this)">C. ${q.C || ''}</div>
-                        </div>
-                    `;
+        function updateDots() {
+            for(let i=0; i<examQuestions.length; i++) {
+                const d = document.getElementById('dot'+i);
+                if(!d) continue;
+                d.className = 'dot';
+                if(i < answers.length) {
+                    d.classList.add(answers[i].correct ? 'ok' : 'fail');
+                } else if(i === currentIndex) {
+                    d.classList.add('cur');
                 }
+            }
+        }
 
-                html = `
-                    <div class="question-card" id="q-card-${index}">
-                        <div class="q-header">
-                            <span class="q-badge">${q.category || 'Pytanie'} ${q.type === 'tf' ? '(TAK/NIE)' : '(WYBÓR)'}</span>
-                            <span class="q-points ${pointsClass}">${q.points} pkt</span>
-                        </div>
-                        <div class="q-text">${index + 1}. ${q.text}</div>
-                        <div class="answers">
-                            ${answersHtml}
-                        </div>
-                    </div>
+        function loadQuestion() {
+            if(currentIndex >= examQuestions.length) {
+                finishExam();
+                return;
+            }
+
+            const q = examQuestions[currentIndex];
+            document.getElementById('curQ').innerText = currentIndex + 1;
+            document.getElementById('qCategory').innerText = q.category;
+            document.getElementById('qText').innerText = q.text;
+            
+            const pLabel = document.getElementById('qPointLabel');
+            pLabel.innerText = q.points + ' pkt';
+            pLabel.className = 'q-points p' + q.points;
+
+            const box = document.getElementById('ansBox');
+            box.innerHTML = '';
+
+            if(q.type === 'tf') {
+                document.getElementById('qTypeLabel').innerText = 'TAK / NIE';
+                box.className = 'answers tf';
+                box.innerHTML = `
+                    <div class="ans-btn" onclick="select('TAK')">TAK</div>
+                    <div class="ans-btn" onclick="select('NIE')">NIE</div>
                 `;
-                container.innerHTML += html;
-            });
-            updateCounter();
+                startTimer(20);
+            } else {
+                document.getElementById('qTypeLabel').innerText = 'WYBÓR';
+                box.className = 'answers abc';
+                box.innerHTML = `
+                    <div class="ans-btn" onclick="select('A')">A. ${q.A}</div>
+                    <div class="ans-btn" onclick="select('B')">B. ${q.B}</div>
+                    <div class="ans-btn" onclick="select('C')">C. ${q.C}</div>
+                `;
+                startTimer(50);
+            }
+            updateDots();
         }
 
-        function selectAnswer(qIndex, value, btn) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.ans-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            userAnswers[qIndex] = value;
-            updateCounter();
-        }
+        function startTimer(secs) {
+            clearInterval(timer);
+            timeLeft = secs;
+            const bar = document.getElementById('timerBar');
+            const val = document.getElementById('timerVal');
+            
+            val.innerText = timeLeft;
+            val.classList.remove('warn');
+            bar.style.width = '100%';
 
-        function updateCounter() {
-            const answered = Object.values(userAnswers).filter(v => v !== null).length;
-            document.getElementById('qCounter').innerText = `${answered}/${examQuestions.length}`;
-        }
-
-        // --- 4. TIMER ---
-        function startTimer() {
-            timerInterval = setInterval(() => {
+            timer = setInterval(() => {
                 timeLeft--;
-                const m = Math.floor(timeLeft / 60);
-                const s = timeLeft % 60;
-                document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    finishExam();
+                val.innerText = timeLeft;
+                bar.style.width = ((timeLeft / secs) * 100) + '%';
+                
+                if(timeLeft <= 5) val.classList.add('warn');
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeOut();
                 }
             }, 1000);
         }
 
-        // --- 5. SPRAWDZANIE I WYNIK ---
-        function finishExam() {
-            clearInterval(timerInterval);
-            let score = 0;
-            let maxScore = 0;
-
-            examQuestions.forEach((q, index) => {
-                maxScore += q.points;
-                const userAns = userAnswers[index];
-                const correctAns = q.answer;
-                
-                const card = document.getElementById('q-card-' + index);
-                const buttons = card.querySelectorAll('.ans-btn');
-
-                buttons.forEach(b => { b.onclick = null; b.style.pointerEvents = 'none'; });
-
-                buttons.forEach(b => {
-                    let isCorrectBtn = false;
-                    if (q.type === 'tf') {
-                        if (b.innerText === correctAns) isCorrectBtn = true;
-                    } else {
-                        let val = b.innerText.substring(0,1);
-                        if (val === correctAns) isCorrectBtn = true;
-                    }
-                    if (isCorrectBtn) b.classList.add('correct');
-                });
-
-                if (userAns === correctAns) {
-                    score += q.points;
-                } else if (userAns !== null) {
-                    buttons.forEach(b => {
-                        let isUserBtn = false;
-                        if (q.type === 'tf') { if(b.innerText === userAns) isUserBtn = true; }
-                        else { if(b.innerText.substring(0,1) === userAns) isUserBtn = true; }
-                        
-                        if(isUserBtn && !b.classList.contains('correct')) {
-                            b.classList.add('wrong');
-                        }
-                    });
-                }
-            });
-
-            showResult(score, maxScore);
+        function timeOut() {
+            // Brak odpowiedzi = błąd
+            checkAnswer(null);
         }
 
-        function showResult(score, max) {
-            document.getElementById('submitBtn').style.display = 'none';
-            const resScreen = document.getElementById('resultScreen');
-            const resCircle = document.getElementById('resultCircle');
-            const resTitle = document.getElementById('resultTitle');
-            const resDesc = document.getElementById('resultDesc');
+        function select(ans) {
+            clearInterval(timer);
+            checkAnswer(ans);
+        }
 
-            const isPassed = score >= PASSING_SCORE;
-            
-            document.getElementById('questionsContainer').style.display = 'none';
-            document.querySelector('.timer-bar').style.display = 'none';
-            resScreen.style.display = 'block';
+        function checkAnswer(userAns) {
+            const q = examQuestions[currentIndex];
+            const isCorrect = userAns === q.answer;
+            if(isCorrect) score += q.points;
 
-            resCircle.querySelector('.r-score').innerText = `${score}/${max}`;
+            answers.push({ correct: isCorrect, points: q.points });
             
-            if (isPassed) {
-                resCircle.className = 'result-circle pass';
-                resTitle.innerText = "WYNIK POZYTYWNY";
-                resTitle.style.color = "#27ae60";
-                resDesc.innerText = "Gratulacje! Osiągnąłeś wymaganą liczbę punktów ("+score+"/"+PASSING_SCORE+" wymaganych).";
+            // Visual feedback
+            const btns = document.querySelectorAll('.ans-btn');
+            btns.forEach(b => {
+                b.classList.add('locked'); // disable
+                // check if correct button
+                let txt = b.innerText;
+                // For ABC buttons, we check start letter "A.", "B.", etc.
+                // For TF, we check full text
+                let code = txt.substring(0,1); 
+                if(q.type === 'tf') code = txt;
+
+                if(code === q.answer) b.classList.add('correct');
+                else if(code === userAns && !isCorrect) b.classList.add('wrong');
+            });
+
+            updateDots();
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 1500);
+        }
+
+        function finishExam() {
+            document.getElementById('examScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'flex';
+
+            const rScore = document.getElementById('resScore');
+            const rTitle = document.getElementById('resTitle');
+            const rDesc = document.getElementById('resDesc');
+            
+            rScore.innerText = score + ' / ' + maxScore;
+            
+            if(score >= PASS_SCORE) {
+                rScore.className = 'r-score pass';
+                rTitle.innerText = 'EGZAMIN ZDANY';
+                rTitle.style.color = 'var(--success)';
+                rDesc.innerText = 'Gratulacje! Osiągnąłeś wymagany wynik.';
             } else {
-                resCircle.className = 'result-circle fail';
-                resTitle.innerText = "WYNIK NEGATYWNY";
-                resTitle.style.color = "#e74c3c";
-                resDesc.innerText = "Niestety, nie zdobyłeś wymaganych " + PASSING_SCORE + " punktów. Masz " + score + " pkt.";
+                rScore.className = 'r-score fail';
+                rTitle.innerText = 'EGZAMIN NIEZDANY';
+                rTitle.style.color = 'var(--danger)';
+                rDesc.innerText = 'Wymagane minimum ' + PASS_SCORE + ' punktów.';
             }
         }
     </script>
