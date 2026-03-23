@@ -4,212 +4,208 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Egzamin DORD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         :root {
-            --bg: #121212;
-            --card: #1e1e1e;
-            --accent: #f1c40f;
-            --text: #ffffff;
-            --muted: #888;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #111111;
+            --muted: #6c757d;
+            --primary: #f1c40f; /* Żółty */
+            --accent: #111111; /* Czarny */
             --danger: #e74c3c;
-            --success: #27ae60;
+            --success: #2ecc71;
+            --radius: 16px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body { 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Inter', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
-            height: 100vh; 
+            min-height: 100vh; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            overflow: hidden;
         }
 
-        /* --- LOGIN --- */
-        #loginScreen { 
-            width: 100%; 
-            height: 100%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-        }
+        .container { width: 100%; max-width: 500px; padding: 15px; }
         
-        .login-box { 
-            background: var(--card); 
-            padding: 40px; 
-            border-radius: 20px; 
-            width: 100%; 
-            max-width: 400px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            border: 1px solid #333;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        /* KARTA OGÓLNA */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            border: 1px solid #eee;
+            position: relative;
         }
 
-        .logo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 20px; object-fit: cover; }
-        .title { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
-        .subtitle { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 30px; }
+        /* LOGOWANIE */
+        .logo-img { width: 50px; height: 50px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
+        .title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 5px; }
+        .subtitle { font-size: 11px; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 25px; }
 
-        .form-group { width: 100%; margin-bottom: 15px; }
-        .input { 
-            width: 100%; 
-            padding: 15px; 
-            background: #2a2a2a; 
-            border: 2px solid #333; 
-            border-radius: 10px; 
-            color: #fff; 
-            text-align: center; 
-            font-size: 18px; 
-            font-weight: 600; 
-            letter-spacing: 2px; 
-            outline: none; 
+        .input-field {
+            width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 12px;
+            font-size: 20px; font-weight: 700; text-align: center; letter-spacing: 2px;
+            background: #fafafa; outline: none; transition: border-color 0.2s; margin-bottom: 15px;
         }
-        .input:focus { border-color: var(--accent); }
+        .input-field:focus { border-color: var(--primary); background: #fff; }
 
-        .btn { 
-            width: 100%; 
-            padding: 15px; 
-            background: var(--accent); 
-            color: #000; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.2s;
+        .btn-main {
+            width: 100%; padding: 18px; background: var(--accent); color: #fff;
+            border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
-        .btn:hover { filter: brightness(1.1); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .error-msg { color: var(--danger); font-size: 13px; margin-top: 15px; text-align: center; min-height: 20px; }
-        .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.1); border-top-color: #000; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-
-        /* --- EXAM --- */
-        #examScreen { display: none; width: 100%; height: 100%; flex-direction: column; }
+        .btn-main:hover { background: #000; }
+        .btn-main:active { transform: scale(0.98); }
         
-        .header { background: var(--card); padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 16px; color: var(--muted); }
-        .header span { color: var(--accent); font-weight: 700; }
+        .error-text { color: var(--danger); font-size: 13px; text-align: center; margin-top: 15px; font-weight: 600; }
+        .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
 
-        .timer-box { background: #111; padding: 10px 20px; text-align: center; }
-        .timer-bar-bg { height: 4px; background: #333; border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
-        .timer-bar-fg { height: 100%; background: var(--accent); transition: width 0.1s linear; }
-        .timer-val { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
-        .timer-val.warn { color: var(--danger); }
-
-        .q-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        /* EGZAMIN */
+        #examScreen { display: none; width: 100%; height: 100%; }
+        .exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 10px; }
+        .exam-header span { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
         
-        .q-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 15px; text-transform: uppercase; font-weight: 700; }
-        .q-pts.p3 { color: var(--danger); }
-        .q-pts.p2 { color: var(--accent); }
-        .q-pts.p1 { color: var(--success); }
+        .big-number { font-size: 80px; font-weight: 900; color: var(--accent); line-height: 1; text-align: center; margin: 10px 0; letter-spacing: -4px; }
+        .q-text-display { font-size: 18px; font-weight: 600; text-align: center; line-height: 1.5; margin-bottom: 25px; min-height: 60px; color: var(--text); }
+        
+        .points-badge { display: inline-block; background: #eee; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 15px; }
+        .points-badge.p3 { background: #ffebee; color: #c62828; }
+        .points-badge.p2 { background: #fff8e1; color: #f57f17; }
+        .points-badge.p1 { background: #e8f5e9; color: #2e7d32; }
 
-        .q-card { background: var(--card); padding: 30px; border-radius: 16px; border: 1px solid #333; margin-bottom: 25px; }
-        .q-text { font-size: 20px; line-height: 1.5; text-align: center; }
+        .timer-bar-bg { height: 6px; background: #eee; border-radius: 3px; width: 100%; margin-bottom: 20px; overflow: hidden; }
+        .timer-bar-fg { height: 100%; background: var(--primary); width: 100%; transition: width 0.1s linear; }
 
-        .ans-grid { display: grid; gap: 12px; }
-        .ans-grid.tf { grid-template-columns: 1fr 1fr; }
-        .ans-grid.abc { grid-template-columns: 1fr; }
+        .answers-grid { display: grid; gap: 12px; }
+        .answers-grid.tf { grid-template-columns: 1fr 1fr; }
+        .answers-grid.abc { grid-template-columns: 1fr; }
 
-        .ans-btn { 
-            padding: 18px; 
-            background: #2a2a2a; 
-            border: 2px solid #333; 
-            border-radius: 10px; 
-            color: #ccc; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: 0.15s;
+        .ans-btn {
+            background: #fff; border: 2px solid #eee; padding: 20px; border-radius: 12px;
+            font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text);
         }
-        .ans-btn:hover { background: #333; border-color: #444; color: #fff; }
-        /* Ukrywamy kolory podczas egzaminu - usuwam klasy .correct/.wrong z CSS, bo JS ich nie doda */
+        .ans-btn:hover { border-color: var(--accent); background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        .footer { background: var(--card); padding: 10px; border-top: 1px solid #333; display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #333; }
-        .dot.active { background: var(--accent); box-shadow: 0 0 5px var(--accent); }
-        .dot.done { background: #555; } /* Szare po odpowiedzi, bez info czy ok */
+        /* WYNIKI */
+        #resultScreen, #failScreen { display: none; width: 100%; height: 100%; }
+        
+        .result-header { text-align: center; margin-bottom: 20px; }
+        .result-circle { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; }
+        .result-circle.pass { background: var(--success); color: #fff; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); }
+        .result-circle.fail { background: var(--danger); color: #fff; box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3); }
+        .r-val { font-size: 32px; line-height: 1; }
+        .r-lbl { font-size: 11px; text-transform: uppercase; opacity: 0.9; }
 
-        /* --- RESULT --- */
-        #resultScreen { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; background: var(--bg); padding: 20px; }
-        .res-box { background: var(--card); padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; width: 100%; border: 1px solid #333; }
-        .res-big { font-size: 64px; font-weight: 800; margin: 10px 0; }
-        .res-big.pass { color: var(--success); }
-        .res-big.fail { color: var(--danger); }
-        .res-title { margin: 10px 0 20px 0; font-size: 22px; }
-        .res-desc { color: var(--muted); font-size: 14px; line-height: 1.5; }
-        .res-details { margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; text-align: left; font-size: 13px; color: #aaa; max-height: 200px; overflow-y: auto; }
+        .history-list { max-height: 400px; overflow-y: auto; padding-right: 5px; width: 100%; }
+        .history-item { 
+            background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; 
+            display: flex; flex-direction: column; transition: transform 0.1s;
+        }
+        .history-item:active { transform: scale(0.99); }
+
+        .h-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .h-qid { font-weight: 700; font-size: 13px; color: var(--muted); }
+        
+        .h-status-badge { 
+            padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; 
+        }
+        .h-status-badge.ok { background: #e8f5e9; color: var(--success); }
+        .h-status-badge.bad { background: #ffebee; color: var(--danger); }
+
+        .h-content { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 5px; }
+        .h-ans { font-size: 12px; color: var(--muted); }
+        .h-ans span { font-weight: 700; color: var(--text); }
+
+        /* Ekran Błędu (Oszustwo) */
+        .fail-box { text-align: center; padding: 20px 0; }
+        .fail-icon { font-size: 50px; margin-bottom: 15px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 600px) { .ans-grid.tf { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <!-- EKRAN LOGOWANIA -->
+    <!-- LOGOWANIE -->
     <div id="loginScreen">
-        <div class="login-box">
-            <img src="https://z-cdn-media.chatglm.cn/files/e765f68e-656e-42c9-a93f-c50b8530c618.png?auth_key=1874049393-a1d73f3391ef423084224503a91822aa-0-807a3d0214e239d7f33ff6e69e8664f3" class="logo">
-            <div class="title">DORD SYSTEM</div>
-            <div class="subtitle">Weryfikacja dostępu</div>
-            
-            <div class="form-group">
-                <input type="text" id="keyInput" class="input" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
+        <div class="container">
+            <div class="card">
+                <img src="https://z-cdn-media.chatglm.cn/files/b08df4b5-419e-4896-bd87-bea2a0ed5b07.png?auth_key=1874273734-7660da9223ef487f9e4ebdb6b87873f5-0-5e45fc9e0f294cc363ba5c4d5ddc2300" class="logo-img">
+                <div class="title">DORD System</div>
+                <div class="subtitle">Weryfikacja dostępu</div>
+                <input type="text" id="keyInput" class="input-field" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
+                <button id="loginBtn" class="btn-main" onclick="validateKey()">Rozpocznij</button>
+                <div id="loginSpinner" class="spinner"></div>
+                <div id="loginError" class="error-text"></div>
             </div>
-            <button id="loginBtn" class="btn" onclick="validateKey()">Rozpocznij</button>
-            <div id="loginSpinner" class="spinner"></div>
-            <div id="loginError" class="error-msg"></div>
         </div>
     </div>
 
-    <!-- EKRAN EGZAMINU -->
+    <!-- EGZAMIN -->
     <div id="examScreen">
-        <div class="header">
-            <h1>Pytanie <span id="qNum">1</span> z <span id="qTotal">32</span></h1>
-            <div id="qCat">Kategoria</div>
-        </div>
-        
-        <div class="timer-box">
-            <div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div>
-            <div id="tVal" class="timer-val">20</div>
-        </div>
+        <div class="container">
+            <div class="card">
+                <div class="exam-header">
+                    <span id="qCat">Kategoria</span>
+                    <span id="qTypeBadge">TAK/NIE</span>
+                </div>
+                
+                <div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div>
 
-        <div class="q-area">
-            <div class="q-info">
-                <span id="qType">TAK/NIE</span>
-                <span id="qPts" class="q-pts">3 pkt</span>
-            </div>
-            <div class="q-card">
-                <div id="qText" class="q-text">Treść pytania</div>
-            </div>
-            <div id="ansGrid" class="ans-grid tf">
-                <!-- Przyciski -->
+                <!-- Wygląd "DUŻY NUMER" -->
+                <div style="text-align: center;">
+                    <span id="qNum" class="big-number">1</span>
+                    <div id="qPts" class="points-badge p3" style="margin-top:-10px; margin-bottom:15px; display:inline-block;">3 pkt</div>
+                </div>
+
+                <div id="qText" class="q-text-display">Treść pytania...</div>
+
+                <div id="ansGrid" class="answers-grid tf">
+                    <!-- Buttons -->
+                </div>
             </div>
         </div>
-
-        <div id="footerDots" class="footer"></div>
     </div>
 
-    <!-- EKRAN WYNIKÓW -->
+    <!-- WYNIKI -->
     <div id="resultScreen">
-        <div class="res-box">
-            <div style="color:#888; font-size:12px; text-transform:uppercase; letter-spacing:2px;">Wynik Egzaminu</div>
-            <div id="resScore" class="res-big pass">0/74</div>
-            <h2 id="resTitle" class="res-title">WYNIK POZYTYWNY</h2>
-            <p id="resDesc" class="res-desc">Opis</p>
-            <div id="resDetails" class="res-details"></div>
+        <div class="container">
+            <div class="card">
+                <div class="result-header">
+                    <div id="resCircle" class="result-circle pass">
+                        <span id="resScoreVal" class="r-val">0</span>
+                        <span class="r-lbl">Pkt</span>
+                    </div>
+                    <h2 id="resTitle" style="font-size: 18px; font-weight: 800;">WYNIK POZYTYWNY</h2>
+                    <p id="resDesc" style="font-size: 13px; color: var(--muted);">Gratulacje!</p>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+                <div id="historyList" class="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EKRAN BŁĘDU (OSZUSTWO) -->
+    <div id="failScreen">
+        <div class="container">
+            <div class="card fail-box">
+                <div class="fail-icon">⚠️</div>
+                <h2 style="color: var(--danger); margin-bottom: 10px;">EGZAMIN UNIEWAŻNIONY</h2>
+                <p style="color: var(--muted); font-size: 14px;">Wykryto opuszczenie okna egzaminu. Procedura przerwana.</p>
+            </div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
-        // --- BAZA PYTAŃ (SKRÓCONA WIDOK, PEŁNA W KODZIE) ---
+        // --- BAZA PYTAŃ ---
         const questionsData = [
             // TAK/NIE 3 pkt
             { text: "Czy masz obowiązek ustąpić pierwszeństwa pojazdowi uprzywilejowanemu na sygnale?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
@@ -342,14 +338,14 @@
         let examQuestions = [];
         let qIndex = 0;
         let score = 0;
-        let maxScore = 0;
-        let history = []; // historia odpowiedzi
+        let history = []; 
         let timerObj;
         let timeLeft = 0;
         const PASS = 68;
         const TARGET = 74;
+        let examActive = false; // Flaga czy egzamin trwa
 
-        // --- LOGOWANIE (ZABEZPIECZONE) ---
+        // --- LOGOWANIE ---
         document.getElementById('keyInput').addEventListener('keyup', e => { if(e.key==='Enter') validateKey(); });
 
         function validateKey() {
@@ -364,131 +360,87 @@
             spin.style.display = 'block';
             err.innerText = "";
 
-            // Krok 1: Sprawdź czy klucz istnieje
             db.ref('examKeys/' + key).get().then(snap => {
-                if(!snap.exists()) {
-                    showError("Klucz nie istnieje w systemie.");
-                    resetBtn();
-                    return;
-                }
+                if(!snap.exists()) { showError("Klucz nie istnieje w systemie."); resetBtn(); return; }
                 const data = snap.val();
-                if(data.status !== 'active') {
-                    showError("Ten klucz został już wykorzystany.");
-                    resetBtn();
-                    return;
-                }
+                if(data.status !== 'active') { showError("Ten klucz został już wykorzystany."); resetBtn(); return; }
 
-                // Krok 2: Próba zablokowania (transakcja)
                 db.ref('examKeys/' + key).transaction(d => {
                     if(d.status === 'active') return { status: 'used', usedAt: Date.now() };
-                    else return; // Abort
+                    else return; 
                 }, (error, committed, nsnap) => {
-                    if(error) {
-                        showError("Błąd zapisu. Spróbuj ponownie.");
-                        resetBtn();
-                    } else if(!committed) {
-                        showError("Ktoś inny użył tego klucza w tym samym momencie.");
-                        resetBtn();
-                    } else {
-                        // SUKCES
-                        startExam();
-                    }
+                    if(error) { showError("Błąd zapisu."); resetBtn(); }
+                    else if(!committed) { showError("Klucz wykorzystany w tym samym momencie."); resetBtn(); }
+                    else { startExam(); }
                 });
-            }).catch(err => {
-                showError("Błąd połączenia z bazą.");
-                console.log(err);
-                resetBtn();
-            });
+            }).catch(err => { showError("Błąd połączenia."); resetBtn(); });
         }
 
-        function showError(msg) {
-            document.getElementById('loginError').innerText = msg;
-        }
+        function showError(msg) { document.getElementById('loginError').innerText = msg; }
         function resetBtn() {
             document.getElementById('loginBtn').style.display = 'block';
             document.getElementById('loginSpinner').style.display = 'none';
+        }
+
+        // --- ANTY-OSZUSTWO (VISIBILITY CHANGE) ---
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && examActive) {
+                triggerFail();
+            }
+        });
+        // Dodatkowo wykrycie zmiany zakładki/okna (starsze metody dla kompatybilności)
+        window.onblur = () => {
+            if(examActive) triggerFail();
+        };
+
+        function triggerFail() {
+            clearInterval(timerObj);
+            examActive = false; // Zatrzymaj logikę
+            
+            document.getElementById('examScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('failScreen').style.display = 'flex';
         }
 
         // --- LOGIKA EGZAMINU ---
         function startExam() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('examScreen').style.display = 'flex';
+            examActive = true;
 
-            // Sortowanie: Najpierw 20 TF, potem 12 ABC. Wewnątrz grup losowo.
             const poolTF = questionsData.filter(q => q.type === 'tf');
             const poolABC = questionsData.filter(q => q.type === 'abc');
 
-            // Dobór punktowy (zachowujemy logikę 74 pkt)
-            // ... (uproszczona logika doboru, bo baza jest duża, bierzemy po kolei z przetasowanych)
             let tf = shuffle(poolTF);
             let abc = shuffle(poolABC);
             
-            // Uproszczona selekcja, by miec pewnosc ze mamy ilosc pytan
-            // W prawdziwym systemie nalezy pilnowac punktacji, tu dla uproszczenia biore pierwsze 20 i 12
-            // Ale z proba zachowania pkt:
-            let selTF = [], selABC = [];
-            let ptsTF = 0, ptsABC = 0;
-            
-            // TF: 20 pytan
-            // Bierzemy takie, by suma wyszła ok.
-            // Na sztywno: bierzemy pierwsze 20 z shuffled, w bazie jest mix.
-            // Dla pewności punktów: bierzemy tyle 3pkt ile sie da, potem reszte.
+            let selTF = [], ptsTF = 0;
             let tf3 = tf.filter(q=>q.points===3);
             let tf2 = tf.filter(q=>q.points===2);
             let tf1 = tf.filter(q=>q.points===1);
             
-            // Chcemy ok 40 pkt z TF.
             while(selTF.length < 20) {
-                if(tf3.length > 0 && (ptsTF + 3) <= 60) { // limit bezpieczny
-                    let q = tf3.pop(); selTF.push(q); ptsTF += q.points;
-                } else if(tf2.length > 0 && (ptsTF + 2) <= 60) {
-                    let q = tf2.pop(); selTF.push(q); ptsTF += q.points;
-                } else if(tf1.length > 0) {
-                    let q = tf1.pop(); selTF.push(q); ptsTF += q.points;
-                } else {
-                    // fallback
-                    let q = tf.pop(); if(q) { selTF.push(q); ptsTF += q.points; } else break;
-                }
+                if(tf3.length > 0 && (ptsTF + 3) <= 60) { let q = tf3.pop(); selTF.push(q); ptsTF += q.points; }
+                else if(tf2.length > 0 && (ptsTF + 2) <= 60) { let q = tf2.pop(); selTF.push(q); ptsTF += q.points; }
+                else if(tf1.length > 0) { let q = tf1.pop(); selTF.push(q); ptsTF += q.points; }
+                else { let q = tf.pop(); if(q) { selTF.push(q); ptsTF += q.points; } else break; }
             }
 
-            // ABC: 12 pytan
+            let selABC = [], ptsABC = 0;
             let abc3 = abc.filter(q=>q.points===3);
             let abc2 = abc.filter(q=>q.points===2);
             while(selABC.length < 12) {
-                if(abc3.length > 0) {
-                    let q = abc3.pop(); selABC.push(q); ptsABC += q.points;
-                } else if(abc2.length > 0) {
-                    let q = abc2.pop(); selABC.push(q); ptsABC += q.points;
-                } else {
-                    let q = abc.pop(); if(q) { selABC.push(q); ptsABC += q.points; } else break;
-                }
+                if(abc3.length > 0) { let q = abc3.pop(); selABC.push(q); ptsABC += q.points; }
+                else if(abc2.length > 0) { let q = abc2.pop(); selABC.push(q); ptsABC += q.points; }
+                else { let q = abc.pop(); if(q) { selABC.push(q); ptsABC += q.points; } else break; }
             }
 
-            examQuestions = [...selTF, ...selABC]; // TF pierwsze, ABC drugie
-            maxScore = examQuestions.reduce((s, q) => s + q.points, 0);
-
-            document.getElementById('qTotal').innerText = examQuestions.length;
-            buildDots();
+            examQuestions = [...selTF, ...selABC];
             loadQ();
         }
 
         function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
-        function buildDots() {
-            const ft = document.getElementById('footerDots');
-            ft.innerHTML = '';
-            for(let i=0; i<examQuestions.length; i++) ft.innerHTML += `<div class="dot" id="d${i}"></div>`;
-        }
-
-        function updateDots() {
-            for(let i=0; i<examQuestions.length; i++) {
-                const d = document.getElementById('d'+i);
-                if(!d) continue;
-                d.className = 'dot';
-                if(i < history.length) d.classList.add('done');
-                else if(i === qIndex) d.classList.add('active');
-            }
-        }
 
         function loadQ() {
             if(qIndex >= examQuestions.length) { finishExam(); return; }
@@ -500,19 +452,19 @@
             
             const pEl = document.getElementById('qPts');
             pEl.innerText = q.points + ' pkt';
-            pEl.className = 'q-pts p' + q.points;
+            pEl.className = 'points-badge p' + q.points;
 
             const grid = document.getElementById('ansGrid');
             grid.innerHTML = '';
 
             if(q.type === 'tf') {
-                document.getElementById('qType').innerText = 'TAK / NIE';
-                grid.className = 'ans-grid tf';
+                document.getElementById('qTypeBadge').innerText = 'TAK / NIE';
+                grid.className = 'answers-grid tf';
                 grid.innerHTML = `<div class="ans-btn" onclick="ans('TAK')">TAK</div><div class="ans-btn" onclick="ans('NIE')">NIE</div>`;
                 startTimer(20);
             } else {
-                document.getElementById('qType').innerText = 'WYBÓR';
-                grid.className = 'ans-grid abc';
+                document.getElementById('qTypeBadge').innerText = 'WYBÓR';
+                grid.className = 'answers-grid abc';
                 grid.innerHTML = `
                     <div class="ans-btn" onclick="ans('A')">A. ${q.A}</div>
                     <div class="ans-btn" onclick="ans('B')">B. ${q.B}</div>
@@ -520,80 +472,91 @@
                 `;
                 startTimer(50);
             }
-            updateDots();
         }
 
         function startTimer(secs) {
             clearInterval(timerObj);
             timeLeft = secs;
             const bar = document.getElementById('tBar');
-            const val = document.getElementById('tVal');
-            val.innerText = timeLeft;
-            val.classList.remove('warn');
             bar.style.width = '100%';
 
             timerObj = setInterval(() => {
                 timeLeft--;
-                val.innerText = timeLeft;
                 bar.style.width = ((timeLeft / secs) * 100) + '%';
-                if(timeLeft <= 5) val.classList.add('warn');
                 if(timeLeft <= 0) { clearInterval(timerObj); timeOut(); }
             }, 1000);
         }
 
-        function timeOut() {
-            registerAnswer(null); // brak odpowiedzi
-        }
-
-        function ans(v) {
-            clearInterval(timerObj);
-            registerAnswer(v);
-        }
+        function timeOut() { registerAnswer(null); }
+        function ans(v) { clearInterval(timerObj); registerAnswer(v); }
 
         function registerAnswer(userAns) {
             const q = examQuestions[qIndex];
             const correct = userAns === q.answer;
             if(correct) score += q.points;
-            
             history.push({ q: q, user: userAns, ok: correct });
-            
-            // Brak visual feedback (kolorów) - przechodzimy dalej
-            updateDots();
             qIndex++;
             loadQ();
         }
 
         function finishExam() {
+            examActive = false; // Dezaktywuj monitoring przy prawidłowym końcu
             document.getElementById('examScreen').style.display = 'none';
             document.getElementById('resultScreen').style.display = 'flex';
 
             const passed = score >= PASS;
             
-            document.getElementById('resScore').innerText = score + ' / ' + maxScore;
-            document.getElementById('resScore').className = 'res-big ' + (passed ? 'pass' : 'fail');
-            
+            // UI Wynikow
+            const circle = document.getElementById('resCircle');
             const title = document.getElementById('resTitle');
             const desc = document.getElementById('resDesc');
-
+            
+            document.getElementById('resScoreVal').innerText = score;
+            
             if(passed) {
-                title.innerText = "EGZAMIN ZDANY";
+                circle.className = 'result-circle pass';
+                title.innerText = "WYNIK POZYTYWNY";
                 title.style.color = "var(--success)";
-                desc.innerText = "Gratulacje! Osiągnąłeś wymagany próg punktowy ("+PASS+").";
+                desc.innerText = "Gratulacje! Osiągnąłeś wymagany próg ("+PASS+" pkt).";
             } else {
-                title.innerText = "EGZAMIN NIEZDANY";
+                circle.className = 'result-circle fail';
+                title.innerText = "WYNIK NEGATYWNY";
                 title.style.color = "var(--danger)";
-                desc.innerText = "Niestety, wynik jest poniżej wymaganego progu ("+PASS+").";
+                desc.innerText = "Wymagane minimum " + PASS + " punktów.";
             }
 
-            // Lista odpowiedzi na końcu
+            // Historia (ładne kafelki)
             let html = '';
             history.forEach((h, i) => {
-                let color = h.ok ? 'var(--success)' : 'var(--danger)';
-                let status = h.ok ? 'OK' : 'ŹLE';
+                let statusClass = h.ok ? 'ok' : 'bad';
+                let statusText = h.ok ? 'POPRAWNA' : 'BŁĄD / BRAK';
                 let uAns = h.user || 'BRAK';
-                html += `<div style='margin-bottom:4px; color:${color};'>${i+1}. ${status} (Twoja odp: ${uAns}, Poprawna: ${h.q.answer})</div>`;
+                
+                // Tworzenie treści odpowiedzi
+                let answerContent = '';
+                if(h.q.type === 'abc') {
+                    let letterContent = '';
+                    if(uAns === 'A') letterContent = h.q.A;
+                    else if(uAns === 'B') letterContent = h.q.B;
+                    else if(uAns === 'C') letterContent = h.q.C;
+                    else letterContent = '-';
+                    answerContent = `Twoja odp: ${uAns}. ${letterContent}`;
+                } else {
+                    answerContent = `Twoja odp: ${uAns}`;
+                }
+
+                html += `
+                    <div class="history-item">
+                        <div class="h-top">
+                            <span class="h-qid">Pytanie ${i+1}</span>
+                            <span class="h-status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="h-content">${h.q.text}</div>
+                        <div class="h-ans">${answerContent}</div>
+                    </div>
+                `;
             });
-            document.getElementById('resDetails').innerHTML = html;
+            document.getElementById('historyList').innerHTML = html;
         }
     </script>
 </body>
