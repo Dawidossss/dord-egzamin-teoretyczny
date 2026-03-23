@@ -2,120 +2,287 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>System Egzaminacyjny</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Pracownika DORD</title>
     <style>
-        /* Styl dla ekranu logowania kluczem */
-        #loginScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f4f4f4; display: flex; justify-content: center; align-items: center;
-            flex-direction: column; z-index: 9999;
-        }
-        #loginBox { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-        input { padding: 10px; font-size: 16px; margin: 10px; text-transform: uppercase; text-align: center; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
-        button:hover { background-color: #0056b3; }
-        .error { color: red; margin-top: 10px; font-weight: bold; }
+        /* --- STYLIZACJA --- */
+        #dord-root-panel * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        #dord-root-panel { max-width: 800px; margin: 0 auto; background: #fff; padding-bottom: 50px; position: relative; min-height: 100vh; }
 
-        /* Początkowo ukrywamy treść egzaminu */
-        #examContent { display: none; padding: 20px; }
+        /* Header */
+        .dord-main-header { background: linear-gradient(135deg, #111 0%, #333 100%); color: #fff; padding: 40px 20px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 30px; }
+        .dord-main-logo { width: 60px; height: 60px; border-radius: 50%; margin-bottom: 15px; border: 3px solid #f1c40f; }
+        .dord-main-title { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
+        .dord-main-subtitle { font-size: 12px; color: #aaa; margin-top: 5px; text-transform: uppercase; }
+
+        /* Grid 2x2 */
+        .dord-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
+        @media (max-width: 500px) { .dord-grid { grid-template-columns: 1fr; } }
+
+        /* Karty Menu */
+        .dord-menu-card { 
+            background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 25px 20px; 
+            text-align: center; text-decoration: none; color: #111;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s; display: block;
+            border-bottom: 4px solid transparent;
+        }
+        .dord-menu-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-bottom-color: #f1c40f; }
+        .dord-menu-icon { font-size: 36px; margin-bottom: 12px; display: block; }
+        .dord-menu-name { font-weight: 700; font-size: 16px; display: block; margin-bottom: 5px; }
+        .dord-menu-desc { font-size: 11px; color: #888; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Stopka */
+        .dord-footer { text-align: center; margin-top: 40px; color: #ccc; font-size: 11px; padding: 0 20px; }
+
+        /* --- SYSTEM LOGOWANIA --- */
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .login-box { background: #fff; padding: 30px; border-radius: 15px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .login-box h2 { margin-top: 0; margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .login-box button { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .login-box button:hover { background: #333; }
+        .login-error { color: #e74c3c; font-size: 12px; margin-bottom: 10px; min-height: 15px; }
+        
+        /* Wyloguj i Admin Panel przyciski w nagłówku */
+        .header-actions { margin-top: 15px; }
+        .btn-logout { background: transparent; border: 1px solid #f1c40f; color: #f1c40f; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; }
+        .btn-admin { background: #e74c3c; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; margin-right: 10px; display: none; } /* Widoczny tylko dla admina */
+
+        /* Modal Zmiany Hasła */
+        #changePassModal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; }
+        
+        /* Modal Admina (Dodawanie użytkownika) */
+        #adminModal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <!-- EKRAN WPROWADZANIA KLUCZA -->
-    <div id="loginScreen">
-        <div id="loginBox">
-            <h2>Dostęp do egzaminu</h2>
-            <p>Wprowadź jednorazowy klucz otrzymany od egzaminatora:</p>
-            <input type="text" id="keyInput" placeholder="np. A1B2-C3D4" maxlength="9">
-            <br>
-            <button onclick="validateKey()">Rozpocznij egzamin</button>
-            <div id="errorMsg" class="error"></div>
+<div id="dord-root-panel">
+    
+    <!-- EKRAN LOGOWANIA -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>🔐 Logowanie</h2>
+            <input type="text" id="loginUsername" placeholder="Login (np. jan.kowalski)">
+            <input type="password" id="loginPassword" placeholder="Hasło">
+            <div id="loginError" class="login-error"></div>
+            <button onclick="attemptLogin()">Zaloguj się</button>
         </div>
     </div>
 
-    <!-- TREŚĆ EGZAMINU (TUTAJ WKLEJ SWÓJ STARY KOD EGZAMINU) -->
-    <div id="examContent">
-        <h1>Witaj na egzaminie!</h1>
-        <p>Tutaj znajduje się treść Twojego egzaminu (pytania, timer itp.).</p>
-        
-        <!-- 
-            TU WKLEJ RESZTĘ SWOJEGO KODU HTML EGZAMINU 
-        -->
-        
+    <!-- MODAL ZMIANY HASŁA (PRZY PIERWSZYM LOGOWANIU) -->
+    <div id="changePassModal">
+        <div class="login-box">
+            <h2>🔑 Zmień hasło</h2>
+            <p style="font-size: 12px; color: #666;">To Twoje pierwsze logowanie. Ustal własne hasło.</p>
+            <input type="password" id="newPass1" placeholder="Nowe hasło">
+            <input type="password" id="newPass2" placeholder="Powtórz hasło">
+            <div id="changePassError" class="login-error"></div>
+            <button onclick="changePassword()">Zapisz hasło</button>
+        </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- MODAL ADMINISTRATORA -->
+    <div id="adminModal">
+        <div class="login-box" style="width: 350px;">
+            <h2>👑 Panel Admina</h2>
+            <p style="font-size: 12px; color: #666;">Dodaj nowego egzaminatora.</p>
+            <input type="text" id="newUserLogin" placeholder="Login nowego użytkownika">
+            <input type="password" id="newUserPass" placeholder="Tymczasowe hasło">
+            <button onclick="createUser()">Utwórz konto</button>
+            <button onclick="document.getElementById('adminModal').style.display='none'" style="background: #ccc; margin-top:5px; color: #333;">Zamknij</button>
+            <div id="adminMsg" class="login-error" style="margin-top:10px;"></div>
+        </div>
+    </div>
 
-    <script>
-        // TU WKLEJ SWOJĄ KONFIGURACJĘ FIREBASE (TĘ SAMĄ CO W GENERATORZE)
-        const firebaseConfig = {
-        apiKey: "AIzaSyC-Qxs9Zd0x1_1tpsiAQJE9QYkdPIARPXU", 
-        authDomain: "dord---ewidencja-kursow.firebaseapp.com", 
-        databaseURL: "https://dord---ewidencja-kursow-default-rtdb.europe-west1.firebasedatabase.app/", 
-        projectId: "dord---ewidencja-kursow", 
-        storageBucket: "dord---ewidencja-kursow.appspot.com", 
-        messagingSenderId: "652495067977", 
-        appId: "1:652495067977:web:61868205fa85f02d905898"
-        };
+    <!-- TREŚĆ GŁÓWNA (UKRYTA PRZED ZALOGOWANIEM) -->
+    <div id="mainContent" style="display: none;">
         
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        function validateKey() {
-            const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
-            const errorMsg = document.getElementById('errorMsg');
+        <div class="dord-main-header">
+            <img src="https://z-cdn-media.chatglm.cn/files/e765f68e-656e-42c9-a93f-c50b8530c618.png?auth_key=1874049393-a1d73f3391ef423084224503a91822aa-0-807a3d0214e239d7f33ff6e69e8664f3" class="dord-main-logo">
+            <h1 class="dord-main-title">Panel Pracownika DORD</h1>
+            <div class="dord-main-subtitle">Zalogowano jako: <span id="welcomeUser">-</span></div>
             
-            if (!keyInput) {
-                errorMsg.innerText = "Wprowadź klucz!";
-                return;
+            <div class="header-actions">
+                <button id="btnAdminPanel" class="btn-admin" onclick="document.getElementById('adminModal').style.display='flex'">Dodaj użytkownika</button>
+                <button class="btn-logout" onclick="logout()">Wyloguj</button>
+            </div>
+        </div>
+
+        <div class="dord-grid">
+            <a href="ewidencjakursow.html" class="dord-menu-card">
+                <span class="dord-menu-icon">🚗</span>
+                <span class="dord-menu-name">Ewidencja Kursów</span>
+                <span class="dord-menu-desc">Czas jazdy, historia, PESEL</span>
+            </a>
+
+            <a href="kalendarz.html" class="dord-menu-card">
+                <span class="dord-menu-icon">📅</span>
+                <span class="dord-menu-name">Terminarz</span>
+                <span class="dord-menu-desc">Planowanie zajęć</span>
+            </a>
+
+            <a href="listazdajacych.html" class="dord-menu-card">
+                <span class="dord-menu-icon">📝</span>
+                <span class="dord-menu-name">Lista Zdających</span>
+                <span class="dord-menu-desc">Egzaminy i statystyki</span>
+            </a>
+
+            <a href="faktury.html" class="dord-menu-card">
+                <span class="dord-menu-icon">🧾</span>
+                <span class="dord-menu-name">System Faktur</span>
+                <span class="dord-menu-desc">Rozliczenia i dokumenty</span>
+            </a>
+            
+            <!-- NOWA KARTKA: GENERATOR KLUCZY -->
+            <a href="generator.html" class="dord-menu-card">
+                <span class="dord-menu-icon">🔑</span>
+                <span class="dord-menu-name">Generator Kluczy</span>
+                <span class="dord-menu-desc">Dostęp do egzaminu</span>
+            </a>
+        </div>
+
+        <div class="dord-footer">
+            System DORD v2.0 Secured<br>
+            Zintegrowana baza danych DORD
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    // KONFIGURACJA FIREBASE (Wklej swoje dane!)
+    const firebaseConfig = {
+        apiKey: "TWOJ_API_KEY",
+        authDomain: "TWOJ_AUTH_DOMAIN",
+        databaseURL: "TWOJ_DATABASE_URL",
+        projectId: "TWOJ_PROJECT_ID",
+        storageBucket: "TWOJ_STORAGE_BUCKET",
+        messagingSenderId: "TWOJ_MESSAGING_SENDER_ID",
+        appId: "TWOJ_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Zmienne sesji
+    let currentUser = null;
+
+    // --- FUNKCJE LOGOWANIA ---
+
+    // Sprawdzenie przy załadowaniu strony, czy użytkownik jest zalogowany (localStorage)
+    window.onload = function() {
+        const savedUser = localStorage.getItem('dordUser');
+        const savedPass = localStorage.getItem('dordPass'); // W prawdziwym systemie używa się tokenów, tu upraszczamy
+        
+        if (savedUser && savedPass) {
+            // Próba auto-logowania (sprawdzenie czy hasło w bazie się zgadza)
+            verifyLogin(savedUser, savedPass, true);
+        } else {
+            document.getElementById('login-overlay').style.display = 'flex';
+        }
+    };
+
+    function attemptLogin() {
+        const user = document.getElementById('loginUsername').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        if(!user || !pass) return;
+        verifyLogin(user, pass, false);
+    }
+
+    function verifyLogin(username, password, isAutoLogin) {
+        db.ref('users/' + username).once('value', (snapshot) => {
+            const data = snapshot.val();
+            
+            if (data && data.password === password) {
+                // Logowanie udane
+                currentUser = { username: username, role: data.role };
+                
+                // Zapis do localStorage (żeby nie musiał logować się za każdym odświeżeniem)
+                localStorage.setItem('dordUser', username);
+                localStorage.setItem('dordPass', password);
+
+                // Jeśli to pierwsze logowanie (domyślne hasło lub flaga)
+                if (data.forceChange === true) {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('changePassModal').style.display = 'flex';
+                } else {
+                    enterSystem();
+                }
+            } else {
+                if (!isAutoLogin) {
+                    document.getElementById('loginError').innerText = "Błędny login lub hasło.";
+                }
+                // Jeśli auto-login się nie udał, pokaż ekran logowania
+                localStorage.removeItem('dordUser');
+                localStorage.removeItem('dordPass');
+                document.getElementById('login-overlay').style.display = 'flex';
             }
+        });
+    }
 
-            errorMsg.innerText = "Sprawdzanie klucza...";
-            
-            // Odwołujemy się do konkretnego klucza w bazie
-            const keyRef = database.ref('examKeys/' + keyInput);
+    function enterSystem() {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('changePassModal').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('welcomeUser').innerText = currentUser.username;
 
-            // Używamy transakcji, aby upewnić się, że klucz jest użyty tylko RAZ
-            // Działa to tak: próbujemy zmienić status z 'active' na 'used'.
-            keyRef.transaction((currentData) => {
-                if (currentData === null) {
-                    // Klucz nie istnieje w bazie
-                    return null; 
-                }
-                if (currentData.status === 'active') {
-                    // Klucz jest aktywny, zmieniamy status na zużyty
-                    return { status: 'used', usedAt: Date.now() };
-                } else {
-                    // Klucz już został użyty (status inny niż active)
-                    return; // Przerywamy transakcję (abort)
-                }
-            }, (error, committed, snapshot) => {
-                if (error) {
-                    errorMsg.innerText = "Błąd połączenia z bazą.";
-                    console.error(error);
-                } else if (!committed) {
-                    // Transakcja przerwana = klucz był już użyty lub nie istnieje
-                    errorMsg.innerText = "Nieprawidłowy lub już użyty klucz!";
-                } else {
-                    // Sukces! Klucz był aktywny i właśnie go zużyliśmy
-                    unlockExam();
-                }
-            });
+        // Jeśli to admin, pokaż przycisk do dodawania użytkowników
+        if (currentUser.role === 'admin') {
+            document.getElementById('btnAdminPanel').style.display = 'inline-block';
         }
+    }
 
-        function unlockExam() {
-            // Ukrywamy ekran logowania
-            document.getElementById('loginScreen').style.display = 'none';
-            // Pokazujemy treść egzaminu
-            document.getElementById('examContent').style.display = 'block';
-            
-            // TUTAJ MOŻESZ URUCHOMIĆ FUNKCJE, KTÓRE MIAŁEJ W SWOIM SKRYPCIE,
-            // NP. START TIMERA, ŁADOWANIE PYTAŃ ITP.
-            // np: startTimer(); 
-        }
-    </script>
+    function changePassword() {
+        const p1 = document.getElementById('newPass1').value;
+        const p2 = document.getElementById('newPass2').value;
+        
+        if (p1.length < 4) { document.getElementById('changePassError').innerText = "Hasło musi mieć min. 4 znaki."; return; }
+        if (p1 !== p2) { document.getElementById('changePassError').innerText = "Hasła nie są takie same."; return; }
+
+        // Aktualizacja w bazie
+        db.ref('users/' + currentUser.username).update({
+            password: p1,
+            forceChange: false
+        }).then(() => {
+            localStorage.setItem('dordPass', p1); // Aktualizacja localStorage
+            enterSystem();
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem('dordUser');
+        localStorage.removeItem('dordPass');
+        location.reload();
+    }
+
+    // --- FUNKCJE ADMINA ---
+
+    function createUser() {
+        if (currentUser.role !== 'admin') return alert("Brak uprawnień.");
+
+        const newLogin = document.getElementById('newUserLogin').value.trim();
+        const newPass = document.getElementById('newUserPass').value;
+
+        if (!newLogin || !newPass) { document.getElementById('adminMsg').innerText = "Uzupełnij pola."; return; }
+
+        db.ref('users/' + newLogin).set({
+            password: newPass,
+            role: 'user',
+            forceChange: true
+        }).then(() => {
+            document.getElementById('adminMsg').innerText = "✅ Utworzono użytkownika: " + newLogin;
+            document.getElementById('newUserLogin').value = '';
+            document.getElementById('newUserPass').value = '';
+        }).catch(err => {
+            document.getElementById('adminMsg').innerText = "Błąd: " + err.message;
+        });
+    }
+
+    // Prosta funkcja hashująca (opcjonalnie, w tym przykładzie używamy plain-text dla uproszczenia, 
+    // ale Firebase Rules i tak zabezpieczą dostęp zapisu).
+</script>
 </body>
 </html>
