@@ -7,16 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f8f9fa;
+            --bg: #f4f4f4;
             --card: #ffffff;
             --text: #111111;
             --muted: #6c757d;
-            --primary: #f1c40f; /* Żółty */
-            --accent: #111111; /* Czarny */
+            --primary: #f1c40f;
+            --accent: #111111;
             --danger: #e74c3c;
             --success: #2ecc71;
-            --radius: 16px;
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --radius: 12px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -25,179 +25,187 @@
             font-family: 'Inter', sans-serif; 
             background: var(--bg); 
             color: var(--text); 
-            min-height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; /* Blokuje scrollbary */
         }
 
-        .container { width: 100%; max-width: 500px; padding: 15px; }
+        /* --- EKRAN LOGOWANIA --- */
+        #loginScreen { 
+            height: 100%; width: 100%;
+            display: flex; justify-content: center; align-items: center; 
+            padding: 20px; background: #fff; 
+        }
+        .login-box { width: 100%; max-width: 400px; padding: 40px; background: var(--bg); border-radius: 20px; text-align: center; }
+        .logo-img { width: 60px; margin-bottom: 15px; }
+        .title { font-size: 22px; font-weight: 800; margin-bottom: 5px; }
+        .subtitle { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 30px; font-weight: 700; }
         
-        /* KARTA OGÓLNA */
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 30px;
-            border: 1px solid #eee;
-            position: relative;
+        .input-field { width: 100%; padding: 18px; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 2px; margin-bottom: 15px; background: #fff; outline: none; }
+        .input-field:focus { border-color: var(--primary); }
+        
+        .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-main:hover { background: #000; transform: translateY(-1px); }
+        
+        .error-text { color: var(--danger); font-size: 13px; margin-top: 15px; font-weight: 600; }
+        .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
+
+        /* --- EGZAMIN (FULL SCREEN) --- */
+        #examScreen { display: none; height: 100%; width: 100%; flex-direction: column; background: var(--bg); }
+        
+        /* Pasek górny */
+        .exam-nav {
+            background: #fff; padding: 15px 30px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-left { font-weight: 700; font-size: 14px; color: var(--muted); }
+        .nav-left span { color: var(--text); font-size: 18px; margin-right: 5px; }
+        .nav-right { font-weight: 700; font-size: 14px; color: var(--text); text-transform: uppercase; background: #eee; padding: 5px 12px; border-radius: 20px; }
+
+        /* Timer */
+        .timer-wrap { background: #fff; padding: 0 30px; display: flex; align-items: center; height: 10px; margin-top: 5px; }
+        .timer-bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+        .timer-bar-fg { height: 100%; background: var(--primary); transition: width 0.1s linear; }
+
+        /* Główny Obszar Pytania */
+        .q-container {
+            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 40px; max-width: 1000px; margin: 0 auto; width: 100%;
         }
 
-        /* LOGOWANIE */
-        .logo-img { width: 50px; height: 50px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
-        .title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 5px; }
-        .subtitle { font-size: 11px; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 25px; }
+        .q-header { text-align: center; margin-bottom: 30px; width: 100%; }
+        .big-num { font-size: 100px; font-weight: 900; color: #eee; line-height: 1; position: absolute; z-index: 0; opacity: 0.5; pointer-events: none; }
+        .points-badge { display: inline-block; background: #fff; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #555; border: 2px solid #eee; position: relative; z-index: 1; }
+        .points-badge.p3 { border-color: var(--danger); color: var(--danger); background: #fff0f0; }
+        .points-badge.p2 { border-color: #f1c40f; color: #d3a100; background: #fffdf0; }
+        .points-badge.p1 { border-color: var(--success); color: var(--success); background: #f0fff4; }
 
-        .input-field {
-            width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 12px;
-            font-size: 20px; font-weight: 700; text-align: center; letter-spacing: 2px;
-            background: #fafafa; outline: none; transition: border-color 0.2s; margin-bottom: 15px;
-        }
-        .input-field:focus { border-color: var(--primary); background: #fff; }
+        .q-text-box { background: #fff; padding: 40px; border-radius: 16px; width: 100%; box-shadow: var(--shadow); position: relative; z-index: 1; margin-bottom: 40px; }
+        .q-text { font-size: 26px; font-weight: 600; text-align: center; line-height: 1.5; }
 
-        .btn-main {
-            width: 100%; padding: 18px; background: var(--accent); color: #fff;
-            border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: transform 0.1s, background 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-        }
-        .btn-main:hover { background: #000; }
-        .btn-main:active { transform: scale(0.98); }
-        
-        .error-text { color: var(--danger); font-size: 13px; text-align: center; margin-top: 15px; font-weight: 600; }
-        .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
-
-        /* EGZAMIN */
-        #examScreen { display: none; width: 100%; height: 100%; }
-        .exam-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 10px; }
-        .exam-header span { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-        
-        .big-number { font-size: 80px; font-weight: 900; color: var(--accent); line-height: 1; text-align: center; margin: 10px 0; letter-spacing: -4px; }
-        .q-text-display { font-size: 18px; font-weight: 600; text-align: center; line-height: 1.5; margin-bottom: 25px; min-height: 60px; color: var(--text); }
-        
-        .points-badge { display: inline-block; background: #eee; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 15px; }
-        .points-badge.p3 { background: #ffebee; color: #c62828; }
-        .points-badge.p2 { background: #fff8e1; color: #f57f17; }
-        .points-badge.p1 { background: #e8f5e9; color: #2e7d32; }
-
-        .timer-bar-bg { height: 6px; background: #eee; border-radius: 3px; width: 100%; margin-bottom: 20px; overflow: hidden; }
-        .timer-bar-fg { height: 100%; background: var(--primary); width: 100%; transition: width 0.1s linear; }
-
-        .answers-grid { display: grid; gap: 12px; }
-        .answers-grid.tf { grid-template-columns: 1fr 1fr; }
-        .answers-grid.abc { grid-template-columns: 1fr; }
+        /* Przyciski */
+        .answers-grid { display: grid; gap: 15px; width: 100%; }
+        .answers-grid.tf { grid-template-columns: 1fr 1fr; gap: 20px; }
+        .answers-grid.abc { grid-template-columns: 1fr; gap: 15px; }
 
         .ans-btn {
-            background: #fff; border: 2px solid #eee; padding: 20px; border-radius: 12px;
-            font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text);
+            background: #fff; border: 3px solid #eee; padding: 25px; border-radius: 12px;
+            font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text);
+            position: relative; overflow: hidden; z-index: 1;
         }
-        .ans-btn:hover { border-color: var(--accent); background: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .ans-btn:hover { border-color: var(--accent); background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* WYNIKI */
-        #resultScreen, #failScreen { display: none; width: 100%; height: 100%; }
+        /* --- WYNIKI --- */
+        #resultScreen, #failScreen { display: none; height: 100%; width: 100%; overflow-y: auto; background: var(--bg); }
         
-        .result-header { text-align: center; margin-bottom: 20px; }
-        .result-circle { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; }
-        .result-circle.pass { background: var(--success); color: #fff; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3); }
-        .result-circle.fail { background: var(--danger); color: #fff; box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3); }
-        .r-val { font-size: 32px; line-height: 1; }
-        .r-lbl { font-size: 11px; text-transform: uppercase; opacity: 0.9; }
-
-        .history-list { max-height: 400px; overflow-y: auto; padding-right: 5px; width: 100%; }
-        .history-item { 
-            background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; 
-            display: flex; flex-direction: column; transition: transform 0.1s;
-        }
-        .history-item:active { transform: scale(0.99); }
-
-        .h-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .h-qid { font-weight: 700; font-size: 13px; color: var(--muted); }
+        .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         
-        .h-status-badge { 
-            padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; 
+        .result-header { text-align: center; margin-bottom: 40px; }
+        .result-circle-lg { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; }
+        .result-circle-lg.pass { background: var(--success); color: #fff; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); }
+        .result-circle-lg.fail { background: var(--danger); color: #fff; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3); }
+        .r-val-lg { font-size: 42px; line-height: 1; }
+        .r-lbl-lg { font-size: 12px; text-transform: uppercase; opacity: 0.9; }
+
+        /* Lista wyników */
+        .history-list-full { display: flex; flex-direction: column; gap: 15px; }
+        
+        .history-card { 
+            background: #fff; border-radius: 12px; padding: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;
         }
-        .h-status-badge.ok { background: #e8f5e9; color: var(--success); }
-        .h-status-badge.bad { background: #ffebee; color: var(--danger); }
+        
+        .h-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .h-qid { font-size: 14px; font-weight: 800; color: var(--muted); }
+        
+        .h-status-badge-lg { 
+            padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .h-status-badge-lg.ok { background: #e8f5e9; color: var(--success); }
+        .h-status-badge-lg.bad { background: #ffebee; color: var(--danger); }
 
-        .h-content { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text); margin-bottom: 5px; }
-        .h-ans { font-size: 12px; color: var(--muted); }
-        .h-ans span { font-weight: 700; color: var(--text); }
+        .h-content-text { font-size: 16px; font-weight: 600; line-height: 1.5; color: var(--text); margin-bottom: 10px; }
+        .h-ans-text { font-size: 14px; color: var(--muted); }
+        .h-ans-text strong { color: var(--text); }
 
-        /* Ekran Błędu (Oszustwo) */
-        .fail-box { text-align: center; padding: 20px 0; }
-        .fail-icon { font-size: 50px; margin-bottom: 15px; }
+        /* Fail Screen */
+        .fail-container { height: 100%; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .fail-icon { font-size: 60px; margin-bottom: 20px; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .q-text { font-size: 20px; }
+            .ans-btn { font-size: 18px; padding: 20px; }
+            .answers-grid.tf { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
     <!-- LOGOWANIE -->
     <div id="loginScreen">
-        <div class="container">
-            <div class="card">
-                <img src="https://z-cdn-media.chatglm.cn/files/b08df4b5-419e-4896-bd87-bea2a0ed5b07.png?auth_key=1874273734-7660da9223ef487f9e4ebdb6b87873f5-0-5e45fc9e0f294cc363ba5c4d5ddc2300" class="logo-img">
-                <div class="title">DORD System</div>
-                <div class="subtitle">Weryfikacja dostępu</div>
-                <input type="text" id="keyInput" class="input-field" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
-                <button id="loginBtn" class="btn-main" onclick="validateKey()">Rozpocznij</button>
-                <div id="loginSpinner" class="spinner"></div>
-                <div id="loginError" class="error-text"></div>
-            </div>
+        <div class="login-box">
+            <img src="https://z-cdn-media.chatglm.cn/files/b08df4b5-419e-4896-bd87-bea2a0ed5b07.png?auth_key=1874273734-7660da9223ef487f9e4ebdb6b87873f5-0-5e45fc9e0f294cc363ba5c4d5ddc2300" class="logo-img">
+            <div class="title">System DORD - Egzamin Teoretyczny kat. B</div>
+            <div class="subtitle">Weryfikacja dostępu</div>
+            <input type="text" id="keyInput" class="input-field" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off">
+            <button id="loginBtn" class="btn-main" onclick="validateKey()">Rozpocznij</button>
+            <div id="loginSpinner" class="spinner"></div>
+            <div id="loginError" class="error-text"></div>
         </div>
     </div>
 
     <!-- EGZAMIN -->
     <div id="examScreen">
-        <div class="container">
-            <div class="card">
-                <div class="exam-header">
-                    <span id="qCat">Kategoria</span>
-                    <span id="qTypeBadge">TAK/NIE</span>
-                </div>
-                
-                <div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div>
+        <div class="exam-nav">
+            <div class="nav-left"><span id="qNum">1</span> / <span id="qTotal">32</span></div>
+            <div class="nav-right" id="qCat">Kategoria</div>
+        </div>
+        <div class="timer-wrap">
+            <div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div>
+        </div>
 
-                <!-- Wygląd "DUŻY NUMER" -->
-                <div style="text-align: center;">
-                    <span id="qNum" class="big-number">1</span>
-                    <div id="qPts" class="points-badge p3" style="margin-top:-10px; margin-bottom:15px; display:inline-block;">3 pkt</div>
-                </div>
+        <div class="q-container">
+            <div class="q-header">
+                <!-- Wielki numer w tle -->
+                <div class="big-num" id="qNumBg">1</div>
+                <div id="qPts" class="points-badge p3" style="margin-top: 20px;">3 pkt</div>
+            </div>
 
-                <div id="qText" class="q-text-display">Treść pytania...</div>
+            <div class="q-text-box">
+                <div id="qText" class="q-text">Treść pytania...</div>
+            </div>
 
-                <div id="ansGrid" class="answers-grid tf">
-                    <!-- Buttons -->
-                </div>
+            <div id="ansGrid" class="answers-grid tf">
+                <!-- Buttons -->
             </div>
         </div>
     </div>
 
     <!-- WYNIKI -->
     <div id="resultScreen">
-        <div class="container">
-            <div class="card">
-                <div class="result-header">
-                    <div id="resCircle" class="result-circle pass">
-                        <span id="resScoreVal" class="r-val">0</span>
-                        <span class="r-lbl">Pkt</span>
-                    </div>
-                    <h2 id="resTitle" style="font-size: 18px; font-weight: 800;">WYNIK POZYTYWNY</h2>
-                    <p id="resDesc" style="font-size: 13px; color: var(--muted);">Gratulacje!</p>
+        <div class="result-container">
+            <div class="result-header">
+                <div id="resCircle" class="result-circle-lg pass">
+                    <span id="resScoreVal" class="r-val-lg">0</span>
+                    <span class="r-lbl-lg">Punktów</span>
                 </div>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-                <div id="historyList" class="history-list"></div>
+                <h2 id="resTitle" style="font-size: 24px; font-weight: 800;">WYNIK POZYTYWNY</h2>
+                <p id="resDesc" style="font-size: 16px; color: var(--muted); margin-top: 10px;">Gratulacje!</p>
             </div>
+            
+            <div id="historyList" class="history-list-full"></div>
         </div>
     </div>
 
     <!-- EKRAN BŁĘDU (OSZUSTWO) -->
     <div id="failScreen">
-        <div class="container">
-            <div class="card fail-box">
+        <div class="fail-container">
+            <div>
                 <div class="fail-icon">⚠️</div>
-                <h2 style="color: var(--danger); margin-bottom: 10px;">EGZAMIN UNIEWAŻNIONY</h2>
-                <p style="color: var(--muted); font-size: 14px;">Wykryto opuszczenie okna egzaminu. Procedura przerwana.</p>
+                <h2 style="color: var(--danger); margin-bottom: 10px; font-size: 24px;">EGZAMIN UNIEWAŻNIONY</h2>
+                <p style="color: var(--muted); font-size: 16px;">Wykryto opuszczenie okna egzaminu.<br>Procedura została przerwana.</p>
             </div>
         </div>
     </div>
@@ -205,7 +213,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
-        // --- BAZA PYTAŃ ---
+        // --- BAZA PYTAŃ (SKRÓCONA WIDOK, ALE PEŁNA W KODZIE) ---
         const questionsData = [
             // TAK/NIE 3 pkt
             { text: "Czy masz obowiązek ustąpić pierwszeństwa pojazdowi uprzywilejowanemu na sygnale?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
@@ -343,7 +351,7 @@
         let timeLeft = 0;
         const PASS = 68;
         const TARGET = 74;
-        let examActive = false; // Flaga czy egzamin trwa
+        let examActive = false; 
 
         // --- LOGOWANIE ---
         document.getElementById('keyInput').addEventListener('keyup', e => { if(e.key==='Enter') validateKey(); });
@@ -382,21 +390,15 @@
             document.getElementById('loginSpinner').style.display = 'none';
         }
 
-        // --- ANTY-OSZUSTWO (VISIBILITY CHANGE) ---
+        // --- ANTY-OSZUSTWO ---
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && examActive) {
-                triggerFail();
-            }
+            if (document.hidden && examActive) triggerFail();
         });
-        // Dodatkowo wykrycie zmiany zakładki/okna (starsze metody dla kompatybilności)
-        window.onblur = () => {
-            if(examActive) triggerFail();
-        };
+        window.onblur = () => { if(examActive) triggerFail(); };
 
         function triggerFail() {
             clearInterval(timerObj);
-            examActive = false; // Zatrzymaj logikę
-            
+            examActive = false;
             document.getElementById('examScreen').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('resultScreen').style.display = 'none';
@@ -437,6 +439,7 @@
             }
 
             examQuestions = [...selTF, ...selABC];
+            document.getElementById('qTotal').innerText = examQuestions.length;
             loadQ();
         }
 
@@ -446,7 +449,10 @@
             if(qIndex >= examQuestions.length) { finishExam(); return; }
             
             const q = examQuestions[qIndex];
+            
+            // Aktualizacja UI
             document.getElementById('qNum').innerText = qIndex + 1;
+            document.getElementById('qNumBg').innerText = qIndex + 1; // Duży numer w tle
             document.getElementById('qCat').innerText = q.category;
             document.getElementById('qText').innerText = q.text;
             
@@ -458,12 +464,12 @@
             grid.innerHTML = '';
 
             if(q.type === 'tf') {
-                document.getElementById('qTypeBadge').innerText = 'TAK / NIE';
+                document.getElementById('qCat').innerText = "TAK / NIE";
                 grid.className = 'answers-grid tf';
                 grid.innerHTML = `<div class="ans-btn" onclick="ans('TAK')">TAK</div><div class="ans-btn" onclick="ans('NIE')">NIE</div>`;
                 startTimer(20);
             } else {
-                document.getElementById('qTypeBadge').innerText = 'WYBÓR';
+                document.getElementById('qCat').innerText = "WYBÓR";
                 grid.className = 'answers-grid abc';
                 grid.innerHTML = `
                     <div class="ans-btn" onclick="ans('A')">A. ${q.A}</div>
@@ -500,13 +506,12 @@
         }
 
         function finishExam() {
-            examActive = false; // Dezaktywuj monitoring przy prawidłowym końcu
+            examActive = false;
             document.getElementById('examScreen').style.display = 'none';
             document.getElementById('resultScreen').style.display = 'flex';
 
             const passed = score >= PASS;
             
-            // UI Wynikow
             const circle = document.getElementById('resCircle');
             const title = document.getElementById('resTitle');
             const desc = document.getElementById('resDesc');
@@ -514,25 +519,23 @@
             document.getElementById('resScoreVal').innerText = score;
             
             if(passed) {
-                circle.className = 'result-circle pass';
+                circle.className = 'result-circle-lg pass';
                 title.innerText = "WYNIK POZYTYWNY";
                 title.style.color = "var(--success)";
                 desc.innerText = "Gratulacje! Osiągnąłeś wymagany próg ("+PASS+" pkt).";
             } else {
-                circle.className = 'result-circle fail';
+                circle.className = 'result-circle-lg fail';
                 title.innerText = "WYNIK NEGATYWNY";
                 title.style.color = "var(--danger)";
                 desc.innerText = "Wymagane minimum " + PASS + " punktów.";
             }
 
-            // Historia (ładne kafelki)
             let html = '';
             history.forEach((h, i) => {
                 let statusClass = h.ok ? 'ok' : 'bad';
                 let statusText = h.ok ? 'POPRAWNA' : 'BŁĄD / BRAK';
                 let uAns = h.user || 'BRAK';
                 
-                // Tworzenie treści odpowiedzi
                 let answerContent = '';
                 if(h.q.type === 'abc') {
                     let letterContent = '';
@@ -540,19 +543,19 @@
                     else if(uAns === 'B') letterContent = h.q.B;
                     else if(uAns === 'C') letterContent = h.q.C;
                     else letterContent = '-';
-                    answerContent = `Twoja odp: ${uAns}. ${letterContent}`;
+                    answerContent = `Twoja odpowiedź: <strong>${uAns}. ${letterContent}</strong>`;
                 } else {
-                    answerContent = `Twoja odp: ${uAns}`;
+                    answerContent = `Twoja odpowiedź: <strong>${uAns}</strong>`;
                 }
 
                 html += `
-                    <div class="history-item">
-                        <div class="h-top">
+                    <div class="history-card">
+                        <div class="h-top-row">
                             <span class="h-qid">Pytanie ${i+1}</span>
-                            <span class="h-status-badge ${statusClass}">${statusText}</span>
+                            <span class="h-status-badge-lg ${statusClass}">${statusText}</span>
                         </div>
-                        <div class="h-content">${h.q.text}</div>
-                        <div class="h-ans">${answerContent}</div>
+                        <div class="h-content-text">${h.q.text}</div>
+                        <div class="h-ans-text">${answerContent}</div>
                     </div>
                 `;
             });
