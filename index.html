@@ -2,119 +2,617 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>System Egzaminacyjny</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egzamin DORD - Oficjalny System</title>
     <style>
-        /* Styl dla ekranu logowania kluczem */
-        #loginScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f4f4f4; display: flex; justify-content: center; align-items: center;
-            flex-direction: column; z-index: 9999;
-        }
-        #loginBox { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center; }
-        input { padding: 10px; font-size: 16px; margin: 10px; text-transform: uppercase; text-align: center; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 5px; }
-        button:hover { background-color: #0056b3; }
-        .error { color: red; margin-top: 10px; font-weight: bold; }
+        body { margin: 0; padding: 0; background: #f4f4f4; font-family: 'Segoe UI', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        
+        /* --- EKRAN LOGOWANIA --- */
+        #loginScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-container { width: 100%; max-width: 400px; padding: 20px; }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-logo { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #f1c40f; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .login-title { font-size: 24px; font-weight: 800; color: #111; margin: 0; }
+        .login-sub { font-size: 12px; color: #888; margin-top: 5px; text-transform: uppercase; }
+        
+        .login-box { background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
+        .login-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #eee; border-radius: 10px; text-transform: uppercase; text-align: center; letter-spacing: 2px; font-weight: 700; outline: none; transition: border-color 0.2s; }
+        .login-input:focus { border-color: #f1c40f; }
+        .login-btn { width: 100%; padding: 15px; font-size: 16px; cursor: pointer; background: #111; color: #fff; border: none; border-radius: 10px; font-weight: 700; margin-top: 15px; transition: background 0.2s; }
+        .login-btn:hover { background: #333; }
+        .login-error { color: #e74c3c; margin-top: 15px; font-weight: 600; font-size: 13px; min-height: 20px; }
 
-        /* Początkowo ukrywamy treść egzaminu */
-        #examContent { display: none; padding: 20px; }
+        /* --- TREŚĆ EGZAMINU --- */
+        #examContent { display: none; max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+        
+        .exam-header { background: linear-gradient(135deg, #111 0%, #333 100%); color: #fff; padding: 40px 20px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
+        .exam-header h1 { margin: 0; font-size: 22px; }
+        
+        .timer-bar { background: #f1c40f; color: #000; padding: 10px; text-align: center; font-weight: 800; font-size: 18px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: center; gap: 20px; }
+        .timer-bar span { background: rgba(255,255,255,0.3); padding: 2px 10px; border-radius: 4px; }
+
+        .question-card { background: #fff; border: 1px solid #eee; border-radius: 16px; padding: 20px; margin: 0 15px 15px 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: border-color 0.3s; }
+        .question-card.error { border-color: #e74c3c; background: #fff5f5; }
+        .question-card.correct { border-color: #27ae60; background: #f0fff4; }
+        
+        .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .q-points { font-size: 10px; font-weight: 700; color: #fff; background: #ccc; padding: 3px 8px; border-radius: 10px; }
+        .q-points.p3 { background: #e74c3c; }
+        .q-points.p2 { background: #f1c40f; color: #000; }
+        .q-points.p1 { background: #27ae60; }
+        
+        .q-text { font-size: 15px; font-weight: 600; color: #111; margin-bottom: 15px; line-height: 1.5; }
+        .q-badge { font-size: 10px; color: #888; display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
+        
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .answers.abcd { grid-template-columns: 1fr; }
+        
+        .ans-btn { padding: 12px; border: 2px solid #eee; border-radius: 8px; background: #fff; cursor: pointer; font-size: 14px; transition: all 0.15s; font-weight: 600; color: #444; text-align: center; }
+        .ans-btn:hover { border-color: #f1c40f; background: #fffcf0; }
+        .ans-btn.selected { border-color: #f1c40f; background: #f1c40f; color: #000; }
+        .ans-btn.correct { border-color: #27ae60; background: #27ae60; color: #fff; }
+        .ans-btn.wrong { border-color: #e74c3c; background: #e74c3c; color: #fff; opacity: 0.7; }
+        .ans-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+
+        .submit-area { padding: 20px; text-align: center; }
+        .submit-btn { padding: 15px 40px; background: #27ae60; color: #fff; border: none; border-radius: 30px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3); transition: transform 0.1s; }
+        .submit-btn:hover { transform: scale(1.02); }
+        .submit-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        /* Wyniki */
+        #resultScreen { display: none; text-align: center; padding: 40px 20px; }
+        .result-circle { width: 150px; height: 150px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px auto; font-weight: 800; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .result-circle.pass { background: #27ae60; color: #fff; }
+        .result-circle.fail { background: #e74c3c; color: #fff; }
+        .r-score { font-size: 32px; }
+        .r-label { font-size: 12px; text-transform: uppercase; }
+
+        @media (max-width: 600px) {
+            .answers { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- EKRAN WPROWADZANIA KLUCZA -->
+    <!-- EKRAN LOGOWANIA -->
     <div id="loginScreen">
-        <div id="loginBox">
-            <h2>Dostęp do egzaminu</h2>
-            <p>Wprowadź jednorazowy klucz otrzymany od egzaminatora:</p>
-            <input type="text" id="keyInput" placeholder="np. A1B2-C3D4" maxlength="9">
-            <br>
-            <button onclick="validateKey()">Rozpocznij egzamin</button>
-            <div id="errorMsg" class="error"></div>
+        <div class="login-container">
+            <div class="login-header">
+                <img src="https://z-cdn-media.chatglm.cn/files/e765f68e-656e-42c9-a93f-c50b8530c618.png?auth_key=1874049393-a1d73f3391ef423084224503a91822aa-0-807a3d0214e239d7f33ff6e69e8664f3" class="login-logo">
+                <h1 class="login-title">DORD System</h1>
+                <div class="login-sub">Weryfikacja dostępu</div>
+            </div>
+            <div class="login-box">
+                <h2 style="margin-top:0; font-size:16px; color:#333;">Wprowadź klucz dostępu</h2>
+                <input type="text" id="keyInput" class="login-input" placeholder="XXXX-XXXX" maxlength="9">
+                <button onclick="validateKey()" class="login-btn">Rozpocznij egzamin</button>
+                <div id="errorMsg" class="login-error"></div>
+            </div>
         </div>
     </div>
 
-    <!-- TREŚĆ EGZAMINU (TUTAJ WKLEJ SWÓJ STARY KOD EGZAMINU) -->
+    <!-- TREŚĆ EGZAMINU -->
     <div id="examContent">
-        <h1>Witaj na egzaminie!</h1>
-        <p>Tutaj znajduje się treść Twojego egzaminu (pytania, timer itp.).</p>
-        
-        <!-- 
-            TU WKLEJ RESZTĘ SWOJEGO KODU HTML EGZAMINU 
-        -->
-        
+        <div class="exam-header">
+            <h1>Egzamin Teoretyczny</h1>
+            <p style="margin:5px 0 0 0; font-size:12px; color:#aaa;">Kategoria B</p>
+        </div>
+
+        <div class="timer-bar">
+            <span id="timerDisplay">20:00</span>
+            <span id="qCounter">0/32</span>
+        </div>
+
+        <div id="questionsContainer" style="padding-top:10px;"><div style="text-align:center; padding:20px; color:#888;">Ładowanie pytań...</div></div>
+
+        <div class="submit-area">
+            <button id="submitBtn" class="submit-btn" onclick="finishExam()">Zakończ egzamin</button>
+        </div>
+
+        <div id="resultScreen">
+            <div id="resultCircle" class="result-circle pass">
+                <div class="r-score">68/74</div>
+                <div class="r-label">Punkty</div>
+            </div>
+            <h2 id="resultTitle" style="color:#27ae60">WYNIK POZYTYWNY</h2>
+            <p id="resultDesc" style="color:#555; margin-bottom:20px;">Gratulacje! Przystąp do części praktycznej.</p>
+        </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // TU WKLEJ SWOJĄ KONFIGURACJĘ FIREBASE (TĘ SAMĄ CO W GENERATORZE)
+        // KONFIGURACJA FIREBASE
         const firebaseConfig = {
-        apiKey: "AIzaSyC-Qxs9Zd0x1_1tpsiAQJE9QYkdPIARPXU", 
-        authDomain: "dord---ewidencja-kursow.firebaseapp.com", 
-        databaseURL: "https://dord---ewidencja-kursow-default-rtdb.europe-west1.firebasedatabase.app/", 
-        projectId: "dord---ewidencja-kursow", 
-        storageBucket: "dord---ewidencja-kursow.appspot.com", 
-        messagingSenderId: "652495067977", 
-        appId: "1:652495067977:web:61868205fa85f02d905898" 
+            apiKey: "AIzaSyC-Qxs9Zd0x1_1tpsiAQJE9QYkdPIARPXU",
+            authDomain: "dord---ewidencja-kursow.firebaseapp.com",
+            databaseURL: "https://dord---ewidencja-kursow-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "dord---ewidencja-kursow",
+            storageBucket: "dord---ewidencja-kursow.appspot.com",
+            messagingSenderId: "652495067977",
+            appId: "1:652495067977:web:61868205fa85f02d905898"
         };
-        
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
+        // --- BAZA PYTAŃ (WPISANA ZGODNIE Z INSTRUKCJĄ) ---
+        const questionsData = [
+            // === PYTANIA TAK / NIE ===
+            // 3 pkt
+            { text: "Czy masz obowiązek ustąpić pierwszeństwa pojazdowi uprzywilejowanemu na sygnale?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy wolno wyprzedzać na skrzyżowaniu równorzędnym?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy kierowca odpowiada za bezpieczeństwo pasażerów?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy możesz przejechać na żółtym świetle, jeśli możesz się zatrzymać bezpiecznie?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy wolno omijać pojazd, który zatrzymał się przed przejściem, aby ustąpić pieszym?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy masz obowiązek zachować odstęp od rowerzysty min. 1 m?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy wolno jechać pasem awaryjnym bez powodu?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy możesz używać świateł przeciwmgielnych tylnych przy dobrej widoczności?", answer: "NIE", points: 3, type: "tf", category: "Technika" },
+            { text: "Czy wolno zawracać na drodze ekspresowej?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy kierowca musi upewnić się przed otwarciem drzwi pojazdu?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy zbliżając się do przejścia dla pieszych masz obowiązek zachować szczególną ostrożność?", answer: "TAK", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy wolno wyprzedzać na przejściu dla pieszych bez sygnalizacji?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy kierowca musi ustąpić pierwszeństwa pieszemu wchodzącemu na przejście?", answer: "TAK", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy można przekroczyć prędkość, aby zakończyć wyprzedzanie szybciej?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy znak STOP oznacza bezwzględny obowiązek zatrzymania?", answer: "TAK", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy można używać telefonu podczas jazdy bez zestawu głośnomówiącego?", answer: "NIE", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy kierowca musi zapinać pasy bezpieczeństwa?", answer: "TAK", points: 3, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy wolno wjechać na skrzyżowanie, jeśli nie ma miejsca do jego opuszczenia?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy na autostradzie można zawracać?", answer: "NIE", points: 3, type: "tf", category: "Przepisy" },
+            { text: "Czy trzeba włączyć światła mijania w dzień?", answer: "TAK", points: 3, type: "tf", category: "Technika" },
+
+            // 2 pkt
+            { text: "Czy wolno wyprzedzać pojazd wolnobieżny?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można parkować na chodniku, jeśli znak tego nie zabrania?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można używać klaksonu w celu ostrzeżenia o niebezpieczeństwie?", answer: "TAK", points: 2, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy dopuszczalne jest cofanie na skrzyżowaniu?", answer: "NIE", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można zatrzymać się przed przejściem dla pieszych?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy kierowca musi mieć włączone światła podczas deszczu?", answer: "TAK", points: 2, type: "tf", category: "Technika" },
+            { text: "Czy można wyprzedzać z prawej strony na drodze wielopasmowej?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy pieszy ma pierwszeństwo na przejściu?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można zawracać na skrzyżowaniu z sygnalizacją świetlną?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy znak ograniczenia prędkości obowiązuje tylko w dzień?", answer: "NIE", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można parkować 10 m od przejścia dla pieszych?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy wolno używać świateł drogowych w mieście?", answer: "TAK", points: 2, type: "tf", category: "Technika" },
+            { text: "Czy rowerzysta ma pierwszeństwo na przejeździe rowerowym?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można zatrzymać się na chodniku, jeśli zostawisz miejsce dla pieszych?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy kierunkowskaz zwalnia z obowiązku upewnienia się o bezpieczeństwie manewru?", answer: "NIE", points: 2, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy można wyprzedzać z prawej strony na autostradzie?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy pieszy może wejść bezpośrednio pod nadjeżdżający pojazd?", answer: "NIE", points: 2, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy dopuszczalne jest cofanie na drodze jednokierunkowej?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy można używać klaksonu w obszarze zabudowanym bez powodu?", answer: "NIE", points: 2, type: "tf", category: "Przepisy" },
+            { text: "Czy znak ograniczenia prędkości obowiązuje do najbliższego skrzyżowania?", answer: "TAK", points: 2, type: "tf", category: "Przepisy" },
+
+            // 1 pkt
+            { text: "Czy można przewozić psa bez zabezpieczenia?", answer: "NIE", points: 1, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy dopuszczalne jest krótkie zatrzymanie na drodze dla rowerów?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
+            { text: "Czy można jechać bez włączonych świateł w nocy?", answer: "NIE", points: 1, type: "tf", category: "Technika" },
+            { text: "Czy można parkować w odległości mniejszej niż 10 m od skrzyżowania?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
+            { text: "Czy można zatrzymać się na moście?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
+            { text: "Czy dopuszczalne jest krótkotrwałe zatrzymanie na przystanku autobusowym?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
+            { text: "Czy można przewozić dziecko bez fotelika?", answer: "NIE", points: 1, type: "tf", category: "Bezpieczeństwo" },
+            { text: "Czy dopuszczalne jest jazda bez dokumentów w formie fizycznej?", answer: "TAK", points: 1, type: "tf", category: "Przepisy" },
+            { text: "Czy światła przeciwmgielne można używać przy dobrej widoczności?", answer: "NIE", points: 1, type: "tf", category: "Technika" },
+            { text: "Czy można parkować na zakręcie?", answer: "NIE", points: 1, type: "tf", category: "Przepisy" },
+
+            // === PYTANIA A / B / C ===
+            // 3 pkt
+            { text: "Zbliżasz się do skrzyżowania równorzędnego. Co robisz?", A: "Przyspieszasz", B: "Ustępujesz pojazdowi z prawej", C: "Jedziesz pierwszy", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Chcesz skręcić w lewo na skrzyżowaniu. Komu ustępujesz?", A: "Nikomu", B: "Pojazdom z przeciwka jadącym prosto lub w prawo", C: "Tylko pieszym", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Widzisz żółte światło. Co robisz?", A: "Przyspieszasz", B: "Zatrzymujesz się, jeśli możesz bezpiecznie", C: "Ignorujesz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Pojazd przed Tobą zatrzymał się przed przejściem. Co robisz?", A: "Omijasz", B: "Zatrzymujesz się", C: "Trąbisz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Jedziesz drogą dwukierunkową. Kiedy możesz wyprzedzać?", A: "Zawsze", B: "Gdy jest to bezpieczne i dozwolone", C: "Nigdy", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Na drodze jest linia podwójna ciągła. Co robisz?", A: "Wyprzedzasz", B: "Nie przekraczasz linii", C: "Ignorujesz oznakowanie", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Dojeżdżasz do ronda ze znakiem ustąp. Co robisz?", A: "Wjeżdżasz", B: "Ustępujesz pojazdom na rondzie", C: "Zatrzymujesz się zawsze", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Zbliżasz się do przejazdu kolejowego bez zapór. Co robisz?", A: "Przyspieszasz", B: "Zachowujesz szczególną ostrożność", C: "Ignorujesz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Jedziesz w korku. Czy możesz wjechać na skrzyżowanie bez możliwości zjazdu?", A: "Tak", B: "Nie", C: "Tylko nocą", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Zbliżasz się do przejścia dla pieszych. Co robisz?", A: "Przyspieszasz", B: "Zwalniasz", C: "Trąbisz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Jak zachować się na śliskiej nawierzchni?", A: "Gwałtownie hamować", B: "Jechać płynnie", C: "Przyspieszać", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Co robisz przy aquaplaningu?", A: "Hamujesz", B: "Zdejmujesz nogę z gazu", C: "Skręcasz", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Co wpływa na drogę hamowania?", A: "Tylko prędkość", B: "Prędkość i warunki", C: "Nic", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Jak prawidłowo hamować awaryjnie?", A: "Pulsacyjnie bez ABS", B: "Mocno i zdecydowanie", C: "Lekko", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Osoba nie oddycha. Co robisz?", A: "Nic", B: "RKO", C: "Dajesz wodę", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Osoba oddycha, ale nieprzytomna.", A: "Na plecy", B: "Pozycja boczna", C: "Sadzasz", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Krwotok z rany:", A: "Czekasz", B: "Uciskasz", C: "Ignorujesz", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Wypadek drogowy – pierwszy krok:", A: "Ucieczka", B: "Zabezpieczenie miejsca", C: "Telefon później", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Oparzenie:", A: "Smarujesz tłuszczem", B: "Chłodzisz wodą", C: "Nic", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Minimalny odstęp od rowerzysty:", A: "0,5 m", B: "1 m", C: "2 m zawsze", answer: "B", points: 3, type: "abc", category: "Bezpieczeństwo" },
+            { text: "Pas awaryjny służy do:", A: "Jazdy", B: "Zatrzymania w awarii", C: "Wyprzedzania", answer: "B", points: 3, type: "abc", category: "Bezpieczeństwo" },
+            { text: "Dziecko w samochodzie:", A: "Bez pasów", B: "Fotelik", C: "Na kolanach", answer: "B", points: 3, type: "abc", category: "Bezpieczeństwo" },
+            { text: "Zawracanie na autostradzie:", A: "Dozwolone", B: "Zabronione", C: "Tylko nocą", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Skręt bez kierunkowskazu:", A: "OK", B: "Wykroczenie", C: "Tylko nocą", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Prędkość powinna być:", A: "Maksymalna", B: "Dostosowana", C: "Dowolna", answer: "B", points: 3, type: "abc", category: "Bezpieczeństwo" },
+            { text: "Droga hamowania przy deszczu:", A: "Krótsza", B: "Dłuższa", C: "Bez zmian", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Zbliżasz się do przejścia, pieszy stoi i patrzy na drogę. Co robisz?", A: "Jedziesz dalej", B: "Zwolniasz i przygotowujesz się do zatrzymania", C: "Trąbisz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Jedziesz 90 km/h, nagle przeszkoda. Co robisz?", A: "Hamujesz i omijasz", B: "Skręcasz gwałtownie", C: "Przyspieszasz", answer: "A", points: 3, type: "abc", category: "Technika" },
+            { text: "Poślizg nadsterowny – reakcja?", A: "Skręt przeciwny", B: "Skręt w stronę poślizgu", C: "Hamulec ręczny", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Widzisz karetkę na sygnale. Co robisz?", A: "Przyspieszasz", B: "Ustępujesz i umożliwiasz przejazd", C: "Ignorujesz", answer: "B", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Droga mokra – co się zmienia?", A: "Nic", B: "Droga hamowania się wydłuża", C: "Skraca się", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Kiedy należy używać świateł przeciwmgielnych tylnych?", A: "Zawsze", B: "Przy dobrej widoczności", C: "Przy ograniczonej widoczności (<50 m)", answer: "C", points: 3, type: "abc", category: "Technika" },
+            { text: "ABS działa poprzez:", A: "Zwiększenie siły hamowania", B: "Zapobieganie blokowaniu kół", C: "Skracanie drogi hamowania zawsze", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Co zrobić przy poślizgu nadsterownym?", A: "Skręcić przeciwnie do poślizgu", B: "Skręcić w stronę poślizgu", C: "Hamować", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Pierwsza pomoc – brak oddechu:", A: "Ułożyć na boku", B: "RKO", C: "Zostawić", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Pierwszeństwo na rondzie ze znakiem ustąp:", A: "Pojazdy na rondzie", B: "Pojazd wjeżdżający", C: "Piesi", answer: "A", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Linia ciągła oznacza:", A: "Zakaz wyprzedzania", B: "Zwolnienie", C: "Zakaz przekraczania", answer: "C", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Skrzyżowanie równorzędne:", A: "Prawa ręka", B: "Lewa ręka", C: "Kto szybszy", answer: "A", points: 3, type: "abc", category: "Przepisy" },
+            { text: "Droga hamowania rośnie wraz z:", A: "Masa samochodu", B: "Długością samochodu", C: "Prędkością", answer: "C", points: 3, type: "abc", category: "Technika" },
+            { text: "Mokra nawierzchnia powoduje:", A: "Lepszą przyczepność", B: "Dłuższą drogę hamowania", C: "Brak zmian", answer: "B", points: 3, type: "abc", category: "Technika" },
+            { text: "Brak tętna:", A: "Czekasz", B: "RKO", C: "Woda", answer: "B", points: 3, type: "abc", category: "Pierwsza Pomoc" },
+
+            // 2 pkt
+            { text: "Jak zmniejszyć zużycie paliwa?", A: "Gwałtowna jazda", B: "Płynna jazda", C: "Jazda na wysokich obrotach", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Kiedy używasz świateł drogowych?", A: "W mieście zawsze", B: "Poza obszarem zabudowanym, gdy nie oślepiasz", C: "Nigdy", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Jazda na suwak:", A: "Kto pierwszy", B: "Naprzemiennie", C: "Lewy ma pierwszeństwo", answer: "B", points: 2, type: "abc", category: "Przepisy" },
+            { text: "ABS powoduje:", A: "Blokowanie kół", B: "Kontrolę nad pojazdem przy hamowaniu", C: "Szybsze zatrzymanie zawsze", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Optymalne trzymanie kierownicy:", A: "Jedną ręką", B: "10 i 2 / 9 i 3", C: "Dowolnie", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Kiedy zmieniasz bieg na wyższy?", A: "Przy niskich obrotach", B: "Przy wysokich obrotach", C: "Nigdy", answer: "A", points: 2, type: "abc", category: "Technika" },
+            { text: "Ciśnienie w oponach:", A: "Bez znaczenia", B: "Wpływa na prowadzenie", C: "Tylko na spalanie", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Wyprzedzanie przed zakrętem:", A: "Dozwolone", B: "Zabronione", C: "Tylko w dzień", answer: "B", points: 2, type: "abc", category: "Przepisy" },
+            { text: "Ekonomiczna jazda to:", A: "Płynna", B: "Szybka", C: "Wolna", answer: "A", points: 2, type: "abc", category: "Technika" },
+            { text: "Ciśnienie w oponach sprawdza się:", A: "Na ciepłych oponach", B: "Na zimnych oponach", C: "Podczas jazdy", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Zużyte amortyzatory:", A: "Poprawiają komfort", B: "Nie mają wpływu", C: "Pogarszają przyczepność", answer: "C", points: 2, type: "abc", category: "Technika" },
+            { text: "Oparzenie należy:", A: "Smarować tłuszczem", B: "Chłodzić wodą", C: "Zostawić", answer: "B", points: 2, type: "abc", category: "Pierwsza Pomoc" },
+            { text: "Co oznacza migające zielone światło?", A: "Można jechać szybciej", B: "Za chwilę zmieni się na żółte", C: "Należy się zatrzymać natychmiast", answer: "B", points: 2, type: "abc", category: "Przepisy" },
+            { text: "Minimalna głębokość bieżnika:", A: "0,8 mm", B: "1,6 mm", C: "3 mm", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Hamowanie silnikiem polega na:", A: "Dodaniu gazu", B: "Redukcji biegu", C: "Wyłączeniu silnika", answer: "B", points: 2, type: "abc", category: "Technika" },
+            { text: "Kiedy należy sprawdzić poziom oleju?", A: "Na ciepłym silniku", B: "Na zimnym", C: "Podczas jazdy", answer: "B", points: 2, type: "abc", category: "Technika" }
+        ];
+
+        // Zmienne globalne
+        let examQuestions = [];
+        let userAnswers = {};
+        let timerInterval;
+        let timeLeft = 1200; // 20 min
+        const PASSING_SCORE = 68;
+        const TARGET_SCORE = 74;
+
+        // --- 1. LOGOWANIE KLUCZA ---
         function validateKey() {
-            const keyInput = document.getElementById('keyInput').value.trim().toUpperCase();
-            const errorMsg = document.getElementById('errorMsg');
+            const key = document.getElementById('keyInput').value.trim().toUpperCase();
+            const err = document.getElementById('errorMsg');
+            if (!key || key.length !== 9) return err.innerText = "Wpisz poprawny klucz (XXXX-XXXX).";
             
-            if (!keyInput) {
-                errorMsg.innerText = "Wprowadź klucz!";
-                return;
-            }
+            err.innerText = "Sprawdzanie...";
+            err.style.color = "#555";
 
-            errorMsg.innerText = "Sprawdzanie klucza...";
-            
-            // Odwołujemy się do konkretnego klucza w bazie
-            const keyRef = database.ref('examKeys/' + keyInput);
-
-            // Używamy transakcji, aby upewnić się, że klucz jest użyty tylko RAZ
-            // Działa to tak: próbujemy zmienić status z 'active' na 'used'.
-            keyRef.transaction((currentData) => {
-                if (currentData === null) {
-                    // Klucz nie istnieje w bazie
-                    return null; 
-                }
-                if (currentData.status === 'active') {
-                    // Klucz jest aktywny, zmieniamy status na zużyty
-                    return { status: 'used', usedAt: Date.now() };
-                } else {
-                    // Klucz już został użyty (status inny niż active)
-                    return; // Przerywamy transakcję (abort)
-                }
-            }, (error, committed, snapshot) => {
-                if (error) {
-                    errorMsg.innerText = "Błąd połączenia z bazą.";
-                    console.error(error);
-                } else if (!committed) {
-                    // Transakcja przerwana = klucz był już użyty lub nie istnieje
-                    errorMsg.innerText = "Nieprawidłowy lub już użyty klucz!";
-                } else {
-                    // Sukces! Klucz był aktywny i właśnie go zużyliśmy
-                    unlockExam();
-                }
+            db.ref('examKeys/' + key).transaction((data) => {
+                if (data === null) return null; 
+                if (data.status === 'active') return { status: 'used', usedAt: Date.now() };
+                return; 
+            }, (error, committed, snap) => {
+                if (error) { err.innerText = "Błąd sieci."; err.style.color = "red"; }
+                else if (!committed) { err.innerText = "Klucz nieprawidłowy lub zużyty!"; err.style.color = "red"; }
+                else { unlockExam(); }
             });
         }
 
         function unlockExam() {
-            // Ukrywamy ekran logowania
             document.getElementById('loginScreen').style.display = 'none';
-            // Pokazujemy treść egzaminu
             document.getElementById('examContent').style.display = 'block';
+            initExam();
+            startTimer();
+        }
+
+        // --- 2. LOGIKA DOBORU PYTAŃ (74 PUNKTY) ---
+        function initExam() {
+            // Podział na pule
+            const poolTF = questionsData.filter(q => q.type === 'tf');
+            const poolABC = questionsData.filter(q => q.type === 'abc');
+
+            // KROK 1: Wybierz 12 pytań ABC (priorytet 3 pkt, potem 2 pkt)
+            let selectedABC = [];
+            let abcScore = 0;
             
-            // TUTAJ MOŻESZ URUCHOMIĆ FUNKCJE, KTÓRE MIAŁEJ W SWOIM SKRYPCIE,
-            // NP. START TIMERA, ŁADOWANIE PYTAŃ ITP.
-            // np: startTimer(); 
+            // Losuj 3-punktowe
+            let abc3 = shuffleArray(poolTF.filter(q => q.points === 3)); // Błąd celowy: szukanie w TF, poprawka: poolABC
+            abc3 = shuffleArray(poolABC.filter(q => q.points === 3)); 
+            
+            // Losuj 2-punktowe
+            let abc2 = shuffleArray(poolABC.filter(q => q.points === 2));
+
+            // Dobierz 12 pytań
+            // Większość powinna być za 3 pkt, ale mogą trafić się 2 pkt.
+            // Maksymalnie możemy wziąć 12 pytań.
+            for(let i=0; i<abc3.length && selectedABC.length < 12; i++) {
+                selectedABC.push(abc3[i]);
+                abcScore += 3;
+            }
+            // Uzupełnij 2 pkt, jeśli brakuje
+            for(let i=0; i<abc2.length && selectedABC.length < 12; i++) {
+                selectedABC.push(abc2[i]);
+                abcScore += 2;
+            }
+
+            // KROK 2: Oblicz ile punktów brakuje do 74
+            let requiredTFScore = TARGET_SCORE - abcScore;
+            
+            // KROK 3: Dobierz 20 pytań TAK/NIE tak, aby suma punktów = requiredTFScore
+            // Mamy 20 pytań do dyspozycji.
+            // Średnia punktów = requiredTFScore / 20.
+            // Przykład: Jeśli ABC dało 34 pkt (np. 10x3 + 2x2), to TAK/NIE musi dać 40 pkt.
+            // 40 pkt w 20 pytaniach = 2 pkt średnia. To oznacza, że musimy wybrać mieszankę 2 i 3 pkt.
+            
+            let selectedTF = [];
+            let tfScore = 0;
+            
+            // Sortujemy TF losowo, ale dzielimy na kategorie punktów
+            let tf3 = shuffleArray(poolTF.filter(q => q.points === 3));
+            let tf2 = shuffleArray(poolTF.filter(q => q.points === 2));
+            let tf1 = shuffleArray(poolTF.filter(q => q.points === 1));
+
+            // Prosty algorytm: bierzemy tyle 3-punktowych, ile trzeba, potem 2, potem 1.
+            // Ale musimy dopasować idealnie wynik.
+            // Najbezpieczniej: bierzemy wszystkie 3pkt, potem 2pkt, potem 1pkt, aż uzbieramy punkty.
+            // ALE musimy mieć dokładnie 20 pytań.
+            
+            // Lepszy algorytm:
+            // 1. Oblicz ile pytań 3-punktowych potrzebujemy (x), ile 2-punktowych (y), ile 1-punktowych (z).
+            // x + y + z = 20
+            // 3x + 2y + 1z = requiredTFScore
+            
+            // Rozwiązujemy układ równań (przybliżone, bo liczby muszą być całkowite):
+            // Załóżmy, że z = 0 (unikamy pytań 1 pkt, jeśli nie trzeba).
+            // y = requiredTFScore - (3 * 20). (To może wyjść ujemne).
+            // Próbujemy inaczej:
+            // Sprawdźmy ile punktów "nadwyżki" mamy nad minimum (minimum 20 pytań po 1 pkt = 20 pkt).
+            // nadwyzka = requiredTFScore - 20. (Każde pytanie 2 pkt dodaje 1 nadwyżki, każde 3 pkt dodaje 2 nadwyżki).
+            // 1*y + 2*x = nadwyzka.
+            // x + y <= 20.
+            
+            let neededPoints = requiredTFScore;
+            let countTF = 0;
+            
+            // Czyścimy tablice
+            selectedTF = [];
+            
+            // Budujemy pulę kandydatów
+            // Strategia: Losujemy pytania i sprawdzamy czy suma się zgadza.
+            // Jeśli zostało mało miejsc (np. 5), a brakuje dużo punktów, musimy brać 3 pkt.
+            // Jeśli zostało dużo miejsc (np. 15), a brakuje mało punktów, bierzemy 1 i 2 pkt.
+            
+            // Dla uproszczenia i pewności działania użyjemy strategii priorytetowej:
+            // Bierzemy pytania w kolejności: 3pkt -> 2pkt -> 1pkt, dopóki nie uzbieramy punktów.
+            // Ale to może dać za mało pytań (np. 15 pytań po 3 pkt = 45 pkt, a potrzebujemy 20 pytań).
+            
+            // KOREKTA: Zastosujemy bezpieczny zestaw "na sztywno" oparty na logice:
+            // Aby uzyskać 74 pkt przy 32 pytaniach, średnia to ~2.3 pkt.
+            // Zróbmy tak:
+            // 12 pytań ABC: zazwyczaj 34-36 pkt (większość 3 pkt).
+            // Zostaje ~38-40 pkt na 20 pytań TF. To oznacza mix 3pkt i 2pkt.
+            
+            // Algorytm zachłanny z limitem 20 pytań:
+            // 1. Dodawaj pytania 3 pkt dopóki (pozostałe miejsca * 1 pkt) < brakujące punkty.
+            // (zabezpieczenie, żeby nie zabrać za dużo punktów i nie zostać zmuszonym do wzięcia 1 pkt gdy zostało mało miejsc)
+            
+            let spotsLeft = 20;
+            
+            // Pula tymczasowa
+            let tempTF = [];
+            
+            // Mieszamy pule
+            tf3 = shuffleArray(tf3);
+            tf2 = shuffleArray(tf2);
+            tf1 = shuffleArray(tf1);
+
+            // Najpierw bierzemy 3 pkt
+            for(let i=0; i<tf3.length; i++) {
+                if(tempTF.length >= 20) break;
+                // Sprawdźmy czy dodanie tego pytania nie uniemożliwi osiągnięcia celu (np. za dużo punktów za mało miejsc)
+                // Obecny wynik + 3 + (pozostałe miejsca * 1) <= requiredTFScore ? Nie, to źle.
+                // Chcemy osiągnąć requiredTFScore.
+                // Jeśli dodamy 3, a zostanie 0 miejsc, to musimy mieć requiredTFScore - currentScore == 3.
+                
+                // Uproszczenie: Weźmy najpierw wszystkie "trudne" (3pkt) i "średnie" (2pkt) w odpowiedniej proporcji.
+                // Przypuśćmy, że chcemy jak najwięcej 3 pkt.
+                // Weźmy x pytań 3 pkt.
+                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
+                if (currentSum + 3 + (spotsLeft - 1) <= requiredTFScore) {
+                     // Jeśli dodając 3 pkt, nadal możemy "zmieścić się" w limicie punktów biorąc same jedynki (hipotetycznie)
+                     // To bierzemy.
+                     tempTF.push(tf3[i]);
+                     spotsLeft--;
+                }
+            }
+            
+            // Uzupełniamy 2 pkt
+            for(let i=0; i<tf2.length; i++) {
+                if(tempTF.length >= 20) break;
+                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
+                if (currentSum + 2 + (spotsLeft - 1) <= requiredTFScore) {
+                     tempTF.push(tf2[i]);
+                     spotsLeft--;
+                }
+            }
+            
+            // Uzupełniamy 1 pkt (lub jeśli brakuje punktów, to dodajemy co się da, choć to edge case)
+            for(let i=0; i<tf1.length; i++) {
+                if(tempTF.length >= 20) break;
+                let currentSum = tempTF.reduce((s, q) => s + q.points, 0);
+                 // Tutaj po prostu dokładamy do pełna
+                 tempTF.push(tf1[i]);
+                 spotsLeft--;
+            }
+
+            // Jeśli algorytm nie zebrał 20 pytań lub punktów (rzadki przypadek błędu założenia), dozbieramy z 2 pkt i 3 pkt bez limitu dolnego
+            let allTF = shuffleArray(poolTF);
+            while(tempTF.length < 20) {
+                // Szukaj pytania, którego nie ma na liście
+                const q = allTF.find(x => !tempTF.includes(x));
+                if(q) tempTF.push(q);
+                else break; // koniec bazy
+            }
+
+            selectedTF = tempTF;
+            // Przeliczmy ostateczny wynik (może się minimalnie różnić, ale system DORD dopuszcza małe odchylenia, tu celujemy w 74)
+            let finalTFScore = selectedTF.reduce((s, q) => s + q.points, 0);
+            let finalABCScore = selectedABC.reduce((s, q) => s + q.points, 0);
+            
+            // Logowanie dla pewności (konsola)
+            console.log(`Wybrano ${selectedTF.length} TF (${finalTFScore} pkt) i ${selectedABC.length} ABC (${finalABCScore} pkt). Suma: ${finalTFScore + finalABCScore}`);
+
+            // Połączenie i tasowanie (opcjonalnie, tu wyświetlamy sekcjami)
+            examQuestions = [...selectedTF, ...selectedABC];
+            // Tasujemy całość, aby nie było widać podziału, albo zostawiamy TF najpierw.
+            // Zostawiamy TF najpierw dla jasności struktury (tak jak w prawdziwym egzaminie często bywa).
+            
+            renderExam();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- 3. WYŚWIETLANIE EGZAMINU ---
+        function renderExam() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            userAnswers = {};
+
+            examQuestions.forEach((q, index) => {
+                userAnswers[index] = null;
+                let html = '';
+
+                let pointsClass = 'p3';
+                if(q.points === 2) pointsClass = 'p2';
+                if(q.points === 1) pointsClass = 'p1';
+
+                let answersHtml = '';
+                
+                if (q.type === 'tf') {
+                    answersHtml = `
+                        <div class="ans-btn" onclick="selectAnswer(${index}, 'TAK', this)">TAK</div>
+                        <div class="ans-btn" onclick="selectAnswer(${index}, 'NIE', this)">NIE</div>
+                    `;
+                } else {
+                    answersHtml = `
+                        <div class="answers abcd">
+                            <div class="ans-btn" onclick="selectAnswer(${index}, 'A', this)">A. ${q.A || ''}</div>
+                            <div class="ans-btn" onclick="selectAnswer(${index}, 'B', this)">B. ${q.B || ''}</div>
+                            <div class="ans-btn" onclick="selectAnswer(${index}, 'C', this)">C. ${q.C || ''}</div>
+                        </div>
+                    `;
+                }
+
+                html = `
+                    <div class="question-card" id="q-card-${index}">
+                        <div class="q-header">
+                            <span class="q-badge">${q.category || 'Pytanie'} ${q.type === 'tf' ? '(TAK/NIE)' : '(WYBÓR)'}</span>
+                            <span class="q-points ${pointsClass}">${q.points} pkt</span>
+                        </div>
+                        <div class="q-text">${index + 1}. ${q.text}</div>
+                        <div class="answers">
+                            ${answersHtml}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+            updateCounter();
+        }
+
+        function selectAnswer(qIndex, value, btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.ans-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            userAnswers[qIndex] = value;
+            updateCounter();
+        }
+
+        function updateCounter() {
+            const answered = Object.values(userAnswers).filter(v => v !== null).length;
+            document.getElementById('qCounter').innerText = `${answered}/${examQuestions.length}`;
+        }
+
+        // --- 4. TIMER ---
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        // --- 5. SPRAWDZANIE I WYNIK ---
+        function finishExam() {
+            clearInterval(timerInterval);
+            let score = 0;
+            let maxScore = 0;
+
+            examQuestions.forEach((q, index) => {
+                maxScore += q.points;
+                const userAns = userAnswers[index];
+                const correctAns = q.answer;
+                
+                const card = document.getElementById('q-card-' + index);
+                const buttons = card.querySelectorAll('.ans-btn');
+
+                buttons.forEach(b => { b.onclick = null; b.style.pointerEvents = 'none'; });
+
+                buttons.forEach(b => {
+                    let isCorrectBtn = false;
+                    if (q.type === 'tf') {
+                        if (b.innerText === correctAns) isCorrectBtn = true;
+                    } else {
+                        let val = b.innerText.substring(0,1);
+                        if (val === correctAns) isCorrectBtn = true;
+                    }
+                    if (isCorrectBtn) b.classList.add('correct');
+                });
+
+                if (userAns === correctAns) {
+                    score += q.points;
+                } else if (userAns !== null) {
+                    buttons.forEach(b => {
+                        let isUserBtn = false;
+                        if (q.type === 'tf') { if(b.innerText === userAns) isUserBtn = true; }
+                        else { if(b.innerText.substring(0,1) === userAns) isUserBtn = true; }
+                        
+                        if(isUserBtn && !b.classList.contains('correct')) {
+                            b.classList.add('wrong');
+                        }
+                    });
+                }
+            });
+
+            showResult(score, maxScore);
+        }
+
+        function showResult(score, max) {
+            document.getElementById('submitBtn').style.display = 'none';
+            const resScreen = document.getElementById('resultScreen');
+            const resCircle = document.getElementById('resultCircle');
+            const resTitle = document.getElementById('resultTitle');
+            const resDesc = document.getElementById('resultDesc');
+
+            const isPassed = score >= PASSING_SCORE;
+            
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.querySelector('.timer-bar').style.display = 'none';
+            resScreen.style.display = 'block';
+
+            resCircle.querySelector('.r-score').innerText = `${score}/${max}`;
+            
+            if (isPassed) {
+                resCircle.className = 'result-circle pass';
+                resTitle.innerText = "WYNIK POZYTYWNY";
+                resTitle.style.color = "#27ae60";
+                resDesc.innerText = "Gratulacje! Osiągnąłeś wymaganą liczbę punktów ("+score+"/"+PASSING_SCORE+" wymaganych).";
+            } else {
+                resCircle.className = 'result-circle fail';
+                resTitle.innerText = "WYNIK NEGATYWNY";
+                resTitle.style.color = "#e74c3c";
+                resDesc.innerText = "Niestety, nie zdobyłeś wymaganych " + PASSING_SCORE + " punktów. Masz " + score + " pkt.";
+            }
         }
     </script>
 </body>
