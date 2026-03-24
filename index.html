@@ -7,138 +7,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f4f4f4;
-            --card: #ffffff;
-            --text: #111111;
-            --muted: #6c757d;
-            --primary: #f1c40f;
-            --accent: #111111;
-            --danger: #e74c3c;
-            --success: #2ecc71;
-            --radius: 12px;
-            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --bg: #f4f4f4; --card: #ffffff; --text: #111111; --muted: #6c757d;
+            --primary: #f1c40f; --accent: #111111; --danger: #e74c3c; --success: #2ecc71;
+            --radius: 12px; --shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; width: 100vw; overflow: hidden; }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden; /* Blokuje scrollbary */
-        }
-
-        /* --- EKRAN LOGOWANIA --- */
-        #loginScreen { 
-            height: 100%; width: 100%;
-            display: flex; justify-content: center; align-items: center; 
-            padding: 20px; background: #fff; 
-        }
+        /* --- LOGOWANIE --- */
+        #loginScreen { height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; background: #fff; }
         .login-box { width: 100%; max-width: 400px; padding: 40px; background: var(--bg); border-radius: 20px; text-align: center; }
         .logo-img { width: 60px; margin-bottom: 15px; }
         .title { font-size: 22px; font-weight: 800; margin-bottom: 5px; }
         .subtitle { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 30px; font-weight: 700; }
-        
         .input-field { width: 100%; padding: 18px; border: 2px solid #ddd; border-radius: 12px; font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 2px; margin-bottom: 15px; background: #fff; outline: none; }
         .input-field:focus { border-color: var(--primary); }
-        
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-main:hover { background: #000; transform: translateY(-1px); }
-        
         .error-text { color: var(--danger); font-size: 13px; margin-top: 15px; font-weight: 600; }
         .spinner { display: none; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto; }
 
-        /* --- EGZAMIN (FULL SCREEN) --- */
+        /* --- EGZAMIN --- */
         #examScreen { display: none; height: 100%; width: 100%; flex-direction: column; background: var(--bg); }
-        
-        /* Pasek górny */
-        .exam-nav {
-            background: #fff; padding: 15px 30px; border-bottom: 1px solid #eee;
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
+        .exam-nav { background: #fff; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .nav-left { font-weight: 700; font-size: 14px; color: var(--muted); }
         .nav-left span { color: var(--text); font-size: 18px; margin-right: 5px; }
         .nav-right { font-weight: 700; font-size: 14px; color: var(--text); text-transform: uppercase; background: #eee; padding: 5px 12px; border-radius: 20px; }
-
-        /* Timer */
         .timer-wrap { background: #fff; padding: 0 30px; display: flex; align-items: center; height: 10px; margin-top: 5px; }
         .timer-bar-bg { width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
         .timer-bar-fg { height: 100%; background: var(--primary); transition: width 0.1s linear; }
-
-        /* Główny Obszar Pytania */
-        .q-container {
-            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 40px; max-width: 1000px; margin: 0 auto; width: 100%;
-        }
-
+        .q-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; max-width: 1000px; margin: 0 auto; width: 100%; }
         .q-header { text-align: center; margin-bottom: 30px; width: 100%; }
         .big-num { font-size: 100px; font-weight: 900; color: #eee; line-height: 1; position: absolute; z-index: 0; opacity: 0.5; pointer-events: none; }
         .points-badge { display: inline-block; background: #fff; padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #555; border: 2px solid #eee; position: relative; z-index: 1; }
         .points-badge.p3 { border-color: var(--danger); color: var(--danger); background: #fff0f0; }
         .points-badge.p2 { border-color: #f1c40f; color: #d3a100; background: #fffdf0; }
         .points-badge.p1 { border-color: var(--success); color: var(--success); background: #f0fff4; }
-
         .q-text-box { background: #fff; padding: 40px; border-radius: 16px; width: 100%; box-shadow: var(--shadow); position: relative; z-index: 1; margin-bottom: 40px; }
         .q-text { font-size: 26px; font-weight: 600; text-align: center; line-height: 1.5; }
-
-        /* Przyciski */
         .answers-grid { display: grid; gap: 15px; width: 100%; }
         .answers-grid.tf { grid-template-columns: 1fr 1fr; gap: 20px; }
         .answers-grid.abc { grid-template-columns: 1fr; gap: 15px; }
-
-        .ans-btn {
-            background: #fff; border: 3px solid #eee; padding: 25px; border-radius: 12px;
-            font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text);
-            position: relative; overflow: hidden; z-index: 1;
-        }
+        .ans-btn { background: #fff; border: 3px solid #eee; padding: 25px; border-radius: 12px; font-size: 20px; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; color: var(--text); position: relative; overflow: hidden; z-index: 1; }
         .ans-btn:hover { border-color: var(--accent); background: var(--accent); color: #fff; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
         /* --- WYNIKI --- */
         #resultScreen, #failScreen { display: none; height: 100%; width: 100%; overflow-y: auto; background: var(--bg); }
-        
         .result-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
-        
         .result-header { text-align: center; margin-bottom: 40px; }
         .result-circle-lg { width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 800; }
         .result-circle-lg.pass { background: var(--success); color: #fff; box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3); }
         .result-circle-lg.fail { background: var(--danger); color: #fff; box-shadow: 0 10px 30px rgba(231, 76, 60, 0.3); }
         .r-val-lg { font-size: 42px; line-height: 1; }
         .r-lbl-lg { font-size: 12px; text-transform: uppercase; opacity: 0.9; }
-
-        /* Lista wyników */
         .history-list-full { display: flex; flex-direction: column; gap: 15px; }
-        
-        .history-card { 
-            background: #fff; border-radius: 12px; padding: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;
-        }
-        
+        .history-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
         .h-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .h-qid { font-size: 14px; font-weight: 800; color: var(--muted); }
-        
-        .h-status-badge-lg { 
-            padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
-        }
+        .h-status-badge-lg { padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .h-status-badge-lg.ok { background: #e8f5e9; color: var(--success); }
         .h-status-badge-lg.bad { background: #ffebee; color: var(--danger); }
-
         .h-content-text { font-size: 16px; font-weight: 600; line-height: 1.5; color: var(--text); margin-bottom: 10px; }
         .h-ans-text { font-size: 14px; color: var(--muted); }
         .h-ans-text strong { color: var(--text); }
-
-        /* Fail Screen */
         .fail-container { height: 100%; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px; }
         .fail-icon { font-size: 60px; margin-bottom: 20px; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        @media (max-width: 768px) {
-            .q-text { font-size: 20px; }
-            .ans-btn { font-size: 18px; padding: 20px; }
-            .answers-grid.tf { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 768px) { .q-text { font-size: 20px; } .ans-btn { font-size: 18px; padding: 20px; } .answers-grid.tf { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -162,24 +97,15 @@
             <div class="nav-left"><span id="qNum">1</span> / <span id="qTotal">32</span></div>
             <div class="nav-right" id="qCat">Kategoria</div>
         </div>
-        <div class="timer-wrap">
-            <div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div>
-        </div>
+        <div class="timer-wrap"><div class="timer-bar-bg"><div id="tBar" class="timer-bar-fg"></div></div></div>
 
         <div class="q-container">
             <div class="q-header">
-                <!-- Wielki numer w tle -->
                 <div class="big-num" id="qNumBg">1</div>
                 <div id="qPts" class="points-badge p3" style="margin-top: 20px;">3 pkt</div>
             </div>
-
-            <div class="q-text-box">
-                <div id="qText" class="q-text">Treść pytania...</div>
-            </div>
-
-            <div id="ansGrid" class="answers-grid tf">
-                <!-- Buttons -->
-            </div>
+            <div class="q-text-box"><div id="qText" class="q-text">Treść pytania...</div></div>
+            <div id="ansGrid" class="answers-grid tf"></div>
         </div>
     </div>
 
@@ -194,12 +120,11 @@
                 <h2 id="resTitle" style="font-size: 24px; font-weight: 800;">WYNIK POZYTYWNY</h2>
                 <p id="resDesc" style="font-size: 16px; color: var(--muted); margin-top: 10px;">Gratulacje!</p>
             </div>
-            
             <div id="historyList" class="history-list-full"></div>
         </div>
     </div>
 
-    <!-- EKRAN BŁĘDU (OSZUSTWO) -->
+    <!-- BŁĄD -->
     <div id="failScreen">
         <div class="fail-container">
             <div>
@@ -352,6 +277,7 @@
         const PASS = 68;
         const TARGET = 74;
         let examActive = false; 
+        let currentKey = ""; // Przechowuje klucz
 
         // --- LOGOWANIE ---
         document.getElementById('keyInput').addEventListener('keyup', e => { if(e.key==='Enter') validateKey(); });
@@ -379,7 +305,10 @@
                 }, (error, committed, nsnap) => {
                     if(error) { showError("Błąd zapisu."); resetBtn(); }
                     else if(!committed) { showError("Klucz wykorzystany w tym samym momencie."); resetBtn(); }
-                    else { startExam(); }
+                    else { 
+                        currentKey = key; // Zapisz klucz globalnie
+                        startExam(); 
+                    }
                 });
             }).catch(err => { showError("Błąd połączenia."); resetBtn(); });
         }
@@ -399,6 +328,7 @@
         function triggerFail() {
             clearInterval(timerObj);
             examActive = false;
+            saveResult('TERMINATED'); // Zapisz przerwany
             document.getElementById('examScreen').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('resultScreen').style.display = 'none';
@@ -450,9 +380,8 @@
             
             const q = examQuestions[qIndex];
             
-            // Aktualizacja UI
             document.getElementById('qNum').innerText = qIndex + 1;
-            document.getElementById('qNumBg').innerText = qIndex + 1; // Duży numer w tle
+            document.getElementById('qNumBg').innerText = qIndex + 1;
             document.getElementById('qCat').innerText = q.category;
             document.getElementById('qText').innerText = q.text;
             
@@ -505,8 +434,31 @@
             loadQ();
         }
 
+        // --- ZAPIS WYNIKU ---
+        function saveResult(status) {
+            // Oblicz maxScore dla pewności
+            const maxScore = examQuestions.reduce((s, q) => s + q.points, 0);
+            
+            const logData = {
+                date: Date.now(),
+                key: currentKey,
+                score: score,
+                maxScore: maxScore, 
+                passed: score >= PASS,
+                status: status, 
+                details: history
+            };
+            
+            // Zapis do węzła examLogs
+            db.ref('examLogs').push(logData)
+              .then(() => console.log("Wynik zapisany."))
+              .catch(e => console.error("Błąd zapisu wyniku:", e));
+        }
+
         function finishExam() {
             examActive = false;
+            saveResult('COMPLETED'); // Zapisz ukończony
+
             document.getElementById('examScreen').style.display = 'none';
             document.getElementById('resultScreen').style.display = 'flex';
 
